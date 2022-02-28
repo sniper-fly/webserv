@@ -1,0 +1,10 @@
+*.o
+*.d
+*.gcda
+*.gcno
+webserv
+
+objects/*
+cov_test.info
+coverageFiltered.info
+cov_test/*
