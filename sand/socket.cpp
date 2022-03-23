@@ -1,22 +1,23 @@
 #include "socket.hpp"
-#include "ftutil.hpp"
 
-template<typename T>
-void puterr(T t){
+template <typename T>
+void puterr(T t) {
   cerr << "[" << t << "]" << endl;
 }
 
-template<typename T, typename S>
-void puterr(T t, S s){
-  cerr << "[" << t << "]" << " " << s << endl;
+template <typename T, typename S>
+void puterr(T t, S s) {
+  cerr << "[" << t << "]"
+       << " " << s << endl;
 }
 
-template<typename T, typename S, typename U>
-void puterr(T t, S s, U u){
-  cerr << "[" << t << "]" << " " << s << " " << u << endl;
+template <typename T, typename S, typename U>
+void puterr(T t, S s, U u) {
+  cerr << "[" << t << "]"
+       << " " << s << " " << u << endl;
 }
 
-Socket::Socket(){
+Socket::Socket() {
   iLen = sizeof(siUs);
   iSock = -1;
   iErr = 0;
@@ -30,9 +31,7 @@ Socket::Socket(){
   ulTimeout = 5 * 60;  // 5 minutes default.
 }
 
-Socket::Socket(Socket const &src){
-    *this = src;
-}
+Socket::Socket(Socket const &src) { *this = src; }
 
 Socket::~Socket() {
   if (iSock > -1) close(iSock);
@@ -43,9 +42,8 @@ Socket::~Socket() {
   if (szPeerName) delete[] szPeerName;
 }
 
-Socket& Socket::operator=(const Socket &src) {
-  if (this == &src)
-    return (*this);
+Socket &Socket::operator=(const Socket &src) {
+  if (this == &src) return (*this);
 
   iLen = src.iLen;
   iSock = src.iSock;
@@ -64,7 +62,7 @@ Socket& Socket::operator=(const Socket &src) {
   return (*this);
 }
 
-int Socket::Create(){
+int Socket::Create() {
   // set TCPsocket
   iSock = socket(AF_INET, SOCK_STREAM, 0);
   return iSock;
@@ -187,7 +185,7 @@ int Socket::RecvTeol(int iToast) {  // Receive up to the telnet eol and
       }
       case 2:  // Fill the buffers with data.
       {
-        FD_ZERO(&fdsSocks);        // 集合の消去
+        FD_ZERO(&fdsSocks);  // 集合の消去
         nfds = 0;
         FD_SET(iSock, &fdsSocks);  // fdsSocksにiSockを追加する
         nfds = max(nfds, iSock);
@@ -198,7 +196,8 @@ int Socket::RecvTeol(int iToast) {  // Receive up to the telnet eol and
           return -1;
         }
         // message length = recv()
-        iErr = recv(iSock, szBuf1, (MAX_SOCK_BUFFER) / 2, 0);  // sockfd, buf, len, flags
+        iErr = recv(iSock, szBuf1, (MAX_SOCK_BUFFER) / 2,
+                    0);  // sockfd, buf, len, flags
         if (iErr < 1) {
           iState = 0;
           break;
@@ -231,16 +230,17 @@ int Socket::RecvTeol(int iToast) {  // Receive up to the telnet eol and
       }
       case 3:  // Look for the EOL sequence.
       {
-        if ((iBuf == 1) && (iEnd1 != 0)) {  // Use Buffer 1 first. iEnd1 = szBuf1.size()
-          for (; iBeg1 < iEnd1; ++iBeg1) { // iBeg1[0, iEnd1)
+        if ((iBuf == 1) &&
+            (iEnd1 != 0)) {  // Use Buffer 1 first. iEnd1 = szBuf1.size()
+          for (; iBeg1 < iEnd1; ++iBeg1) {  // iBeg1[0, iEnd1)
             szOutBuf[idx] = szBuf1[iBeg1];  // Copy.   idx[0, N)
             if ((szOutBuf[idx] == '\n') || (szOutBuf[idx] == '\r')) {
               ++iBeg1;  // Count the char just read.
               if ((szOutBuf[idx] == '\r') && (szBuf1[iBeg1] == '\n')) {
                 // Using CRLF as end-of-line.
                 ++idx;
-                szOutBuf[idx] = szBuf1[iBeg1]; // '\n'
-                ++iBeg1;  // Consume LF.
+                szOutBuf[idx] = szBuf1[iBeg1];  // '\n'
+                ++iBeg1;                        // Consume LF.
               }
               szOutBuf[idx + 1] = '\0';  // True. Null line.
               iState = 4;                // Goto cleanup & exit.
@@ -264,7 +264,7 @@ int Socket::RecvTeol(int iToast) {  // Receive up to the telnet eol and
               if ((szOutBuf[idx] == '\r') && (szBuf2[iBeg2] == '\n')) {
                 // Using CRLF as end-of-line.
                 ++idx;
-                szOutBuf[idx] = szBuf2[iBeg2]; // \n
+                szOutBuf[idx] = szBuf2[iBeg2];  // \n
                 ++iBeg2;
               }
               szOutBuf[idx + 1] = '\0';  // True. Null line.
@@ -353,23 +353,24 @@ int Socket::SendText(
   return iErr;
 }
 
-int Socket::SendBinary(char *szFileName) {  // Send this binary file across the socket
+int Socket::SendBinary(
+    char *szFileName) {  // Send this binary file across the socket
   ifstream ifIn;
   char *szBuf;
 
   ifIn.open(szFileName, ios::binary);
-  if (!ifIn){
+  if (!ifIn) {
     return -1;
   }
   szBuf = new char[BUFSIZE];
-  
-  while (!ifIn.eof()){
+
+  while (!ifIn.eof()) {
     ifIn.read(szBuf, BUFSIZE);
     iErr = send(iSock, szBuf, ifIn.gcount(), 0);
   }
 
   ifIn.close();
-  delete [] szBuf;
+  delete[] szBuf;
   return iErr;
 }
 
@@ -380,7 +381,8 @@ int Socket::ResolveName()  // Look up the ip address and name of the peer
   if (szPeerIp == NULL)  // Only if we don't have it already.
   {
     szPeerIp = new char[128];
-    strncpy(szPeerIp, inet_ntoa(siThem.sin_addr), 128); // inet_ntoa return static area.
+    strncpy(szPeerIp, inet_ntoa(siThem.sin_addr),
+            128);  // inet_ntoa return static area.
   }
   szPeerName = new char[128];
   hePeer = gethostbyaddr((char *)&(siThem.sin_addr), sizeof(struct in_addr),
@@ -415,6 +417,4 @@ int Socket::Close()  // Close this socket
   return iErr;
 };
 
-void Socket::debug(){
-  puterr("szOutbuf", szOutBuf);
-}
+void Socket::debug() { puterr("szOutbuf", szOutBuf); }

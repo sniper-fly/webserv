@@ -1,22 +1,25 @@
-#include "socket.hpp"
+#include "config.hpp"
 #include "ftutil.hpp"
+#include "socket.hpp"
 
 #define PORT 8080
 #define STACKSIZE 50000
 
-template<typename T>
-void puterr(T t){
+template <typename T>
+void puterr(T t) {
   cerr << "[" << t << "]" << endl;
 }
 
-template<typename T, typename S>
-void puterr(T t, S s){
-  cerr << "[" << t << "]" << " " << s << endl;
+template <typename T, typename S>
+void puterr(T t, S s) {
+  cerr << "[" << t << "]"
+       << " " << s << endl;
 }
 
-template<typename T, typename S, typename U>
-void puterr(T t, S s, U u){
-  cerr << "[" << t << "]" << " " << s << " " << u << endl;
+template <typename T, typename S, typename U>
+void puterr(T t, S s, U u) {
+  cerr << "[" << t << "]"
+       << " " << s << " " << u << endl;
 }
 
 bool bDnsLookup;
@@ -37,22 +40,18 @@ static void signal_handler(int signame) {
   exit(0);
 }
 
-
 // dummy
-int DoHttp11(Socket *sClient, char *szMethod, char *szUri)
-{
-  return 0;
-}
+int DoHttp11(Socket* sClient, char* szMethod, char* szUri) { return 0; }
 
 // void _Optlink W3Conn(void *client)
-void *W3Conn(void *client) {
+void* W3Conn(void* client) {
   printf("simple-server started.\n");
 
-  Socket *sClient;
+  Socket* sClient;
   char *szRequest, *szUri, *szVer;
   int iRc;
 
-  sClient = (Socket *)client;  // Get the pointer to the socket
+  sClient = (Socket*)client;  // Get the pointer to the socket
 
   // Resolve the IP Name if requested.
   if (bDnsLookup == true) {
@@ -65,7 +64,7 @@ void *W3Conn(void *client) {
 
   iRc = sClient->RecvTeol(NO_EOL);  // Get the message
 
-//  sClient->debug();
+  //  sClient->debug();
 
   // Parse the components of the request
   // "GET / HTTP/1.1"
@@ -96,9 +95,11 @@ void *W3Conn(void *client) {
   return NULL;
 }
 
+// P193
 void Server() {
   Socket server, *client;
   pthread_t thread;
+  int iRc;
 
   // socket
   server.Create();
@@ -109,17 +110,31 @@ void Server() {
     client = server.Accept();
     if (client == NULL) continue;
 
-    pthread_create(&thread, NULL, &W3Conn, client);
-    pthread_join(thread, NULL);
+    iRc = pthread_create(&thread, NULL, &W3Conn, client);
+    if (iRc == -1) {
+      client->Close();
+      delete client;
+    }
   }
 }
 
 int main(void) {
+  int iRc;
+
+  // config
+  iRc = ReadConfig("3wd.cf");
+  if (iRc) {
+    cerr << "Error!" << endl;
+    cerr << "Error reading configuration file. Exiting." << endl;
+    return 1;  // Exit on error.
+  }
+  // cgi
   // signal
   set_signal_handler(SIGINT);
 
   Server();
-
+  int N;
+  int a;
   // while
   // accept
   // parse request
