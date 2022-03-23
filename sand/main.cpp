@@ -1,26 +1,10 @@
 #include "config.hpp"
 #include "ftutil.hpp"
 #include "socket.hpp"
+#include "util.hpp"
 
 #define PORT      8080
 #define STACKSIZE 50000
-
-template<typename T>
-void puterr(T t) {
-  std::cerr << "[" << t << "]" << std::endl;
-}
-
-template<typename T, typename S>
-void puterr(T t, S s) {
-  std::cerr << "[" << t << "]"
-            << " " << s << std::endl;
-}
-
-template<typename T, typename S, typename U>
-void puterr(T t, S s, U u) {
-  std::cerr << "[" << t << "]"
-            << " " << s << " " << u << std::endl;
-}
 
 char *szServerRoot, // The root directory for serving files.
     *szHostName,    // The hostname given out. Overrides the call to hostname().

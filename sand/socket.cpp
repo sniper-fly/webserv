@@ -1,22 +1,5 @@
 #include "socket.hpp"
 
-template<typename T>
-void puterr(T t) {
-  std::cerr << "[" << t << "]" << std::endl;
-}
-
-template<typename T, typename S>
-void puterr(T t, S s) {
-  std::cerr << "[" << t << "]"
-            << " " << s << std::endl;
-}
-
-template<typename T, typename S, typename U>
-void puterr(T t, S s, U u) {
-  std::cerr << "[" << t << "]"
-            << " " << s << " " << u << std::endl;
-}
-
 Socket::Socket() {
   iLen     = sizeof(siUs);
   iSock    = -1;
