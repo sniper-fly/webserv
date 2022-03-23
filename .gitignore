@@ -4,6 +4,8 @@
 *.gcno
 webserv
 
+.vscode
+
 objects/*
 cov_test.info
 coverageFiltered.info
