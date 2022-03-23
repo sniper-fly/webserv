@@ -1,4 +1,4 @@
-NAME = serv
+NAME = webserv
 SRCS = $(shell find *.cpp)
 OBJDIR = ./obj/
 OBJS = $(SRCS:%.cpp=$(OBJDIR)%.o)
