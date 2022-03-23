@@ -4,7 +4,7 @@ OBJDIR = ./obj/
 OBJS = $(SRCS:%.cpp=$(OBJDIR)%.o)
 
 CXX =  clang++ -pthread -g -O0
-CFLAGS = -Wall -Werror -Wextra -std=c++98
+CFLAGS = -Wall -Wextra # -Werror  -std=c++98
 
 # -std=c++98
 all: $(OBJDIR) $(NAME)
