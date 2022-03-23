@@ -55,12 +55,12 @@ int main(void) {
   int iRc;
 
   // config
-  // iRc = ReadConfig("3wd.cf");
-  // if (iRc) {
-  //     std::cerr << "Error!" << std::endl;
-  //     std::cerr << "Error reading configuration file. Exiting." <<
-  //     std::endl; return 1; // Exit on error.
-  // }
+  iRc = ReadConfig("3wd.cf");
+  if (iRc) {
+    std::cerr << "Error!" << std::endl;
+    std::cerr << "Error reading configuration file. Exiting." << std::endl;
+    return 1; // Exit on error.
+  }
   // cgi
   // signal
   set_signal_handler(SIGINT);

@@ -13,7 +13,7 @@ int ReadConfig(char* szConfigName) {
     return 1;
   }
 
-  SetDefaults();
+  SetDefaults(); // グローバル変数の初期化
 
   szBuf       = new char[SMALLBUF];
   szDirective = new char[SMALLBUF];
@@ -25,7 +25,8 @@ int ReadConfig(char* szConfigName) {
   eExtMap             = new Extensions[MAX_EXTENSIONS];
   eExtMap[0].szExt    = new char[1];
   eExtMap[0].szExt[0] = '\0';
-  eExtMap[0].szType   = strdup("application/octet-stream");
+  eExtMap[0].szType =
+      strdup("application/octet-stream"); // TODO szTypeをdeleteする処理を変える
 
   while (! ifIn.eof()) // Until the end of the file.
   {
@@ -36,6 +37,7 @@ int ReadConfig(char* szConfigName) {
     if ((szBuf[0] == '#') || (szBuf[0] == '\0'))
       continue; // Skip comments.
 
+    // 値が2個でも取れる
     sscanf(szBuf, "%s %s %s", szDirective, szVal1, szVal2); // Parse the line.
 
     if (ft::stricmp(szDirective, "ServerRoot") == 0) {
@@ -43,7 +45,7 @@ int ReadConfig(char* szConfigName) {
         delete[] szServerRoot;
       Convert(szVal1);
       if (szVal1[strlen(szVal1) - 1] != '/') {
-        szServerRoot = new char[strlen(szVal1) + 2];
+        szServerRoot = new char[strlen(szVal1) + 2]; // new char strdup混在
         sprintf(szServerRoot, "%s/", szVal1);
       } else {
         szServerRoot = strdup(szVal1);
