@@ -2,6 +2,7 @@
 #include "ftutil.hpp"
 #include "socket.hpp"
 #include "util.hpp"
+#include "signal.hpp"
 
 #define PORT      8080
 #define STACKSIZE 50000
@@ -24,22 +25,6 @@ long   lGmtOffset;   // The offset in minutes between local time and GMT.
 Paths *pAliasPath,   // The set of root aliases.
     *pAliasExec;     // The set of exec aliases.
 Extensions* eExtMap; // The set of extensions and types.
-
-/* proto type function */
-static void set_signal_handler(int signame);
-static void signal_handler(int signame);
-
-static void set_signal_handler(int signame) {
-  if (SIG_ERR == signal(signame, signal_handler)) {
-    fprintf(stderr, "Error. Cannot set signal handler.\n");
-    exit(1);
-  }
-}
-
-static void signal_handler(int signame) {
-  printf("Signal(%d) : simple-server stopped.\n", signame);
-  exit(0);
-}
 
 // dummy
 int DoHttp11(Socket* sClient, char* szMethod, char* szUri) { return 0; }
