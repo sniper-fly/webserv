@@ -22,4 +22,8 @@ extern Paths *pAliasPath,   // The set of root aliases.
     *pAliasExec;            // The set of exec aliases.
 extern Extensions* eExtMap; // The set of extensions and types.
 
+const char szMonth[12][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+  "Aug", "Sep", "Oct", "Nov", "Dec" };
+const char szDay[7][4]    = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
 #endif

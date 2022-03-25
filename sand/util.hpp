@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <netdb.h>
+#include "headers.hpp"
 
 #define PORT           8080
 #define ERRSOCK        "Error! Cannot create socket"
@@ -22,6 +23,24 @@
 #define WAIT_QUEUE_LEN 5
 #define max(a, b)      a > b ? a : b
 #define min(a, b)      a > b ? b : a
+
+// ------------------------------------------------------------------
+//
+// Authorization codes.
+//
+
+#define ACCESS_OK     1 // Allow access.
+#define ACCESS_DENIED 2 // Need authorization.
+#define ACCESS_FAILED 3 // Credentials failed.
+
+#define WRITE_ACCESS 1 // Check write access
+#define READ_ACCESS  2 // Check read access
+
+time_t ConvertDate(char*);
+char*  CreateDate(time_t);
+int    CheckAuth(char*, Headers*, int);
+int    CheckFile(char*, Headers*);
+int    BasicCheck(char*, Headers*);
 
 int  RecvLine(int iSocket, char* szBuf, int iLen);
 void TalkToClient(int iSocket);

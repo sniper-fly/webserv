@@ -6,8 +6,9 @@
 #include "util.hpp"
 #include "ftutil.hpp"
 
-class Range {
- public:
+class Range
+{
+  public:
   int iStart;
   int iEnd;
 };
@@ -19,11 +20,14 @@ class Range {
 // URI, and various other bits used to service a request.
 //
 
-class Headers {
- public:
+class Socket;
+
+class Headers
+{
+  public:
   Headers();
   ~Headers();
-  int RcvHeaders(Socket *sClient);
+  int RcvHeaders(Socket* sClient);
   int CheckHeaders();
   int FindRanges(int iSize);
 
@@ -37,15 +41,15 @@ class Headers {
       *szLastMod, *szLocation, *szMaxForwards, *szPragma, *szPublic, *szRange,
       *szReferer, *szRetryAfter, *szServer, *szTransferEncoding, *szUpgrade,
       *szUserAgent, *szVary, *szVia, *szWarning, *szWWWAuth, *szRealm;
-  time_t ttIfModSince, ttIfUnmodSince;
-  bool bPersistent, bChunked;
+  time_t        ttIfModSince, ttIfUnmodSince;
+  bool          bPersistent, bChunked;
   unsigned long ulContentLength;
-  char **szIfMatchEtags, **szIfNoneMatchEtags;
-  Range *rRanges;
-  int iRangeNum;
+  char **       szIfMatchEtags, **szIfNoneMatchEtags;
+  Range*        rRanges;
+  int           iRangeNum;
 
- private:
-  char **Etag(char *);
+  private:
+  char** Etag(char*);
 };
 
 #endif
