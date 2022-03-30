@@ -36,6 +36,8 @@
 #define WRITE_ACCESS 1 // Check write access
 #define READ_ACCESS  2 // Check read access
 
+class Headers;
+
 time_t ConvertDate(char*);
 char*  CreateDate(time_t);
 int    CheckAuth(char*, Headers*, int);

@@ -148,7 +148,7 @@ struct timeval
 */
 
 /*
-recv_input for szOutBuf
+recv_input for szOutBuf 
 */
 int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
                                    // possibly remove the telnet eol
