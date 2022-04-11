@@ -51,7 +51,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   int      iRc, iRsp, iMethod;
   char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
   Headers* hInfo;
-  bool     bCgi   = false, bPersistent;
+  bool     bCgi = false, bPersistent;
 
   szReq    = strdup(sClient->szOutBuf); // Save the request line.
   iRsp     = 200;
@@ -78,7 +78,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   if (iRc == false)                    // Bad request.
   {
     iRsp = SendError(sClient,
-        "Missing Host header or incompatible headers detected.", 400, HTTP_1_1,
+        (char*)"Missing Host header or incompatible headers detected.", 400, (char*)HTTP_1_1,
         hInfo);
     DeHexify(szReq);
     WriteToLog(sClient, szReq, iRsp, hInfo->ulContentLength);
@@ -90,7 +90,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // Check for a query in the URI.
   if ((szTmp = strchr(szUri, '?')) != NULL) {
     // Break up the URI into document and and search parameters.
-    *szTmp = NULL; // Append NULL to shorter URI.
+    *szTmp = '\0'; // Append NULL to shorter URI.
     szTmp++;       // Let szTmp point to the query terms.
     szSearch       = strdup(szTmp);
     hInfo->szQuery = strdup(szSearch);
@@ -129,13 +129,14 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // Unknown method used.
   else if (iMethod == UNKNOWN)
   {
-    iRsp = SendError(
-        sClient, "Request method not implemented.", 501, HTTP_1_1, hInfo);
+    iRsp = SendError(sClient, (char*)"Request method not implemented.", 501,
+        (char*)HTTP_1_1, hInfo);
   }
   // Error Condition.
   else
   {
-    iRsp = SendError(sClient, "Resource not found.", 404, HTTP_1_1, hInfo);
+    iRsp = SendError(
+        sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
   }
 
   // This request now finished. Log the results.
