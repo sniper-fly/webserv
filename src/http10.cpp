@@ -127,10 +127,10 @@ void DoHttp10(Socket* sClient, char* szMethod, char* szUri) {
 
 int DoPath(Socket* sClient, char* szMethod, char* szPath, char* szSearch,
     Headers* hInfo, char* szUri) {
-  struct stat sBuf;
-  char *      szTmp, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream    ofTmp;
-  int         iRsp = 200, iRc, iType;
+  struct stat   sBuf;
+  char *        szTmp, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  std::ofstream ofTmp;
+  int           iRsp = 200, iRc, iType;
 
   if (szPath[strlen(szPath) - 1] == '/') {
     strcat(szPath, szWelcome); // Prepend default welcome file.
@@ -256,12 +256,12 @@ int DoPath(Socket* sClient, char* szMethod, char* szPath, char* szSearch,
 //
 
 int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
-  struct stat sBuf;
-  char *      szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
-  int         iRsp = 200, iRc, iType, i, iCount;
-  Cgi*        cParms;
-  ofstream    ofOut;
-  ifstream    ifIn;
+  struct stat   sBuf;
+  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
+  int           iRsp = 200, iRc, iType, i, iCount;
+  Cgi*          cParms;
+  std::ofstream ofOut;
+  ifstream      ifIn;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
@@ -587,10 +587,10 @@ char* ResolveExec(char* szUri) {
 
 int SendError(
     Socket* sClient, char* szReason, int iCode, char* szVer, Headers* hInfo) {
-  struct stat sBuf;
-  ofstream    ofTmp;
-  char *      szTmp, szBuf[PATH_LENGTH];
-  int         iRc;
+  struct stat   sBuf;
+  std::ofstream ofTmp;
+  char *        szTmp, szBuf[PATH_LENGTH];
+  int           iRc;
 
   szTmp = tmpnam(NULL);
   ofTmp.open(szTmp);

@@ -51,10 +51,10 @@
 //
 
 int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
-  char *   szBuf, *szTerms[5];
-  ifstream ifDoc;
-  ofstream ofOut;
-  int      i, iCounts[5];
+  char *        szBuf, *szTerms[5];
+  ifstream      ifDoc;
+  std::ofstream ofOut;
+  int           i, iCounts[5];
 
   ifDoc.open(szDoc);
   if (! ifDoc) // Failure to find document.

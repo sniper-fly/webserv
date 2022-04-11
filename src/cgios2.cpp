@@ -59,13 +59,13 @@ char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
 //
 
 int ExecCgi(Cgi* cParms) {
-  int      pIn[2], pOut[2], iNum, iRc;
-  FILE *   fpin, *fpout;
-  FILE*    fpPost;
-  char     szBuf[SMALLBUF], *szArgs[2];
-  int      stdin_save = -1, stdout_save = -1;
-  int      hfStdin = STDIN, hfStdout = STDOUT;
-  ofstream ofOut;
+  int           pIn[2], pOut[2], iNum, iRc;
+  FILE *        fpin, *fpout;
+  FILE*         fpPost;
+  char          szBuf[SMALLBUF], *szArgs[2];
+  int           stdin_save = -1, stdout_save = -1;
+  int           hfStdin = STDIN, hfStdout = STDOUT;
+  std::ofstream ofOut;
 
   // Lock all the other threads out.
   while (__lxchg(&iCgiLock, 1) != 0) {

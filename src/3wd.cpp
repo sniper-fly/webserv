@@ -322,12 +322,12 @@ void DoHttp09(Socket* sClient, char* szRequest, char* szUri) {
 //
 
 void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
-  int         iRc;
-  struct stat sBuf;
-  char        szTmp[512];
-  struct tm*  tmPtr;
-  time_t      ttLocal;
-  ofstream    ofLog;
+  int           iRc;
+  struct stat   sBuf;
+  char          szTmp[512];
+  struct tm*    tmPtr;
+  time_t        ttLocal;
+  std::ofstream ofLog;
 
   time(&ttLocal);
   // Use GMT in the log file if true and available.

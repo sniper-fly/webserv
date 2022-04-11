@@ -50,12 +50,12 @@ class Headers
       *szLastMod, *szLocation, *szMaxForwards, *szPragma, *szPublic, *szRange,
       *szReferer, *szRetryAfter, *szServer, *szTransferEncoding, *szUpgrade,
       *szUserAgent, *szVary, *szVia, *szWarning, *szWWWAuth, *szRealm;
-  time_t ttIfModSince, ttIfUnmodSince;
-  bool   bPersistent, bChunked;
-  ULONG  ulContentLength;
-  char **szIfMatchEtags, **szIfNoneMatchEtags;
-  Range* rRanges;
-  int    iRangeNum;
+  time_t        ttIfModSince, ttIfUnmodSince;
+  bool          bPersistent, bChunked;
+  unsigned long ulContentLength;
+  char **       szIfMatchEtags, **szIfNoneMatchEtags;
+  Range*        rRanges;
+  int           iRangeNum;
 
   private:
   char** Etag(char*);

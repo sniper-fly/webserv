@@ -199,9 +199,9 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
 
 int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
-  struct stat sBuf;
-  char *      szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream    ofTmp;
+  struct stat   sBuf;
+  char *        szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  std::ofstream ofTmp;
   int iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone, iIfRange,
       iRangeErr;
 
@@ -380,12 +380,12 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 
 int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
-  struct stat sBuf;
-  char *      szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
-  int         iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
-  Cgi*        cParms;
-  ofstream    ofOut;
-  ifstream    ifIn;
+  struct stat   sBuf;
+  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
+  int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
+  Cgi*          cParms;
+  std::ofstream ofOut;
+  ifstream      ifIn;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
@@ -628,10 +628,10 @@ int CheckMethod(char* szMethod) {
 //
 
 char* MakeUnique(char* szDir, char* szExt) {
-  ULONG ulNum      = 0;
-  bool  bNotUnique = true;
-  int   iRc;
-  char* szFileName;
+  unsigned long ulNum      = 0;
+  bool          bNotUnique = true;
+  int           iRc;
+  char*         szFileName;
 
   szFileName = new char[PATH_LENGTH];
 
@@ -663,11 +663,11 @@ char* MakeUnique(char* szDir, char* szExt) {
 //
 
 int DoTrace(Socket* sClient, Headers* hInfo) {
-  ofstream    ofOut;
-  char *      szName, szBuf[SMALLBUF], *szTmp;
-  struct stat sBuf;
-  int         iRc;
-  bool        bPersistent = true;
+  std::ofstream ofOut;
+  char *        szName, szBuf[SMALLBUF], *szTmp;
+  struct stat   sBuf;
+  int           iRc;
+  bool          bPersistent = true;
 
   szName = tmpnam(NULL); // Request temporary filename.
   ofOut.open(szName);
@@ -771,7 +771,7 @@ int DoOptions(Socket* sClient, char* szPath, Headers* hInfo, int iType) {
 int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
   struct stat   sBuf;
   char *        szTmp, *szExt, *szLoc, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream      ofTmp;
+  std::ofstream ofTmp;
   int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, j;
   unsigned long ulRc;
   bool          bChunked = false;
@@ -924,10 +924,10 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
 //
 
 int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
-  struct stat sBuf;
-  char *      szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream    ofTmp;
-  int         iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone;
+  struct stat   sBuf;
+  char *        szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  std::ofstream ofTmp;
+  int           iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone;
 
   iRc = CheckAuth(szPath, hInfo, WRITE_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                     // Send request for credentials.
@@ -1269,7 +1269,7 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
 // Receive the entity using the chunked method.
 //
 
-int GetChunked(Socket* sClient, ofstream& ofOut, Headers* hInfo) {
+int GetChunked(Socket* sClient, std::ofstream& ofOut, Headers* hInfo) {
   bool  bNotDone = true;
   char* szPtr;
   int   iBytes, i, j, l, iFactor;
