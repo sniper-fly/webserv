@@ -201,9 +201,9 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
 //
 
 int CheckFile(char* szFile, Headers* hInfo) {
-  ifstream ifIn;
-  int      iRc    = ACCESS_FAILED;
-  char *   szType = NULL, *szRealm = NULL, *szUserFile = NULL, *szBuf, *szVal;
+  std::ifstream ifIn;
+  int           iRc = ACCESS_FAILED;
+  char *szType = NULL, *szRealm = NULL, *szUserFile = NULL, *szBuf, *szVal;
 
   ifIn.open(szFile);
   if (! ifIn) {
@@ -269,8 +269,8 @@ int CheckFile(char* szFile, Headers* hInfo) {
 int BasicCheck(char* szFile, Headers* hInfo) {
   char *szUserPass, *szBuf, *szClientUser, *szClientPass, *szUser, *szPass,
       *szCode;
-  ifstream ifPass;
-  bool     bFound = false;
+  std::ifstream ifPass;
+  bool          bFound = false;
 
   szCode = new char[strlen(hInfo->szAuth)];
   sscanf(hInfo->szAuth, "%*s %s", szCode);

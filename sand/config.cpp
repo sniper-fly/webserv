@@ -1,9 +1,9 @@
 #include "config.hpp"
 
 int ReadConfig(char* szConfigName) {
-  std::ifstream ifIn; // The config file handle.
-  char *        szBuf, *szDirective, *szVal1, *szVal2;
-  int           iNum1 = 0, iNum2 = 0, iNum3 = 1, i;
+  std::std::ifstream ifIn; // The config file handle.
+  char *             szBuf, *szDirective, *szVal1, *szVal2;
+  int                iNum1 = 0, iNum2 = 0, iNum3 = 1, i;
 
   ifIn.open(szConfigName);
   if (! ifIn) {

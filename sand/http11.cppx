@@ -347,7 +347,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   int         iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*        cParms;
   std::ofstream    ofOut;
-  ifstream    ifIn;
+  std::ifstream    ifIn;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
@@ -1138,7 +1138,7 @@ int IfRange(Headers* hInfo, time_t ttMtime) {
 
 int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
     struct stat* sBuf, int iType, int iMethod) {
-  ifstream ifIn;
+  std::ifstream ifIn;
   int      iBytes, iCount, iLen, i, j;
   char *   szBuf, *szBoundary;
 

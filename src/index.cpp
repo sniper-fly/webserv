@@ -52,7 +52,7 @@
 
 int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
   char *        szBuf, *szTerms[5];
-  ifstream      ifDoc;
+  std::ifstream ifDoc;
   std::ofstream ofOut;
   int           i, iCounts[5];
 

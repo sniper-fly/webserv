@@ -261,7 +261,7 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
   int           iRsp = 200, iRc, iType, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
-  ifstream      ifIn;
+  std::ifstream ifIn;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.

@@ -148,7 +148,7 @@ struct timeval
 */
 
 /*
-recv_input for szOutBuf 
+recv_input for szOutBuf
 */
 int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
                                    // possibly remove the telnet eol
@@ -322,8 +322,8 @@ int Socket::Send(const char* szBuf) // Send the text buffer on this socket
 
 int Socket::SendText(
     char* szFileName) { // Send this text file across the socket
-  std::ifstream ifIn;
-  char*         szBuf;
+  std::std::ifstream ifIn;
+  char*              szBuf;
 
   ifIn.open(szFileName);
   if (! ifIn) {
@@ -349,8 +349,8 @@ int Socket::SendText(
 
 int Socket::SendBinary(
     char* szFileName) { // Send this binary file across the socket
-  std::ifstream ifIn;
-  char*         szBuf;
+  std::std::ifstream ifIn;
+  char*              szBuf;
 
   ifIn.open(szFileName, std::ios::binary);
   if (! ifIn) {

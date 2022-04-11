@@ -330,7 +330,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     sClient->Send("\r\n");
     delete[] szTmp;
   }
-  sprintf(szBuf, "ETag: \"%d\"\r\n", sBuf.st_mtime); // Entity tag.
+  sprintf(szBuf, "ETag: \"%ld\"\r\n", sBuf.st_mtime); // Entity tag.
   sClient->Send(szBuf);
 
   if ((iRsp == 304) || (iRsp == 412)) {
@@ -340,7 +340,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 
   if (szSearch != NULL) // Force search results to text/html type.
   {
-    iType = FindType("x.html");
+    iType = FindType((char*)"x.html");
   } else {
     iType = FindType(szPath); // Figure out the MIME type to return.
   }
@@ -355,7 +355,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   // Send full entity.
   sprintf(szBuf, "Content-Type: %s\r\n", eExtMap[iType].szType);
   sClient->Send(szBuf);
-  sprintf(szBuf, "Content-Length: %d\r\n", sBuf.st_size);
+  sprintf(szBuf, "Content-Length: %ld\r\n", sBuf.st_size);
   sClient->Send(szBuf);
   sClient->Send("\r\n");
 
@@ -385,7 +385,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
-  ifstream      ifIn;
+  std::ifstream ifIn;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
@@ -1175,9 +1175,9 @@ int IfRange(Headers* hInfo, time_t ttMtime) {
 
 int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
     struct stat* sBuf, int iType, int iMethod) {
-  ifstream ifIn;
-  int      iBytes, iCount, iLen, i, j;
-  char *   szBuf, *szBoundary;
+  std::ifstream ifIn;
+  int           iBytes, iCount, iLen, i, j;
+  char *        szBuf, *szBoundary;
 
   szBuf = new char[SMALLBUF];
 
