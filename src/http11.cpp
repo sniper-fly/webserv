@@ -486,7 +486,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       }
     } else // Binary data.
     {
-      ofOut.open(szFile, std::ios::bin); // Open in binary mode.
+      ofOut.open(szFile, std::ios::binary); // Open in binary mode.
       iCount = 0;
       while (iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
@@ -557,7 +557,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   if (iMethod != HEAD) // Only send the entity if not HEAD.
   {
     hInfo->ulContentLength = sBuf.st_size - iCount;
-    ifIn.open(cParms->szOutput, std::ios::bin);
+    ifIn.open(cParms->szOutput, std::ios::binary);
     ifIn.seekg(iCount, std::ios::beg);
     while (! ifIn.eof()) {
       ifIn.read(szBuf, SMALLBUF);
@@ -870,7 +870,7 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
 
   iRc = stat(szLoc, &sBuf); // Check for the resource.
 
-  ulRc = DosCopy(szFile, szLoc, DCPY_EXISTING);
+  ulRc = CopyFile(szFile, szLoc, false);
   unlink(szFile); // Remove the temporary always.
   if (ulRc != 0) {
     SendError(sClient, "Local processing error.", 500, HTTP_1_1, hInfo);

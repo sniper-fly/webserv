@@ -276,7 +276,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
 
   szClientUser = szUserPass;
   // Find the password part.
-  szClientPass = strchr((const char*)szUserPass, ':');
+  szClientPass = (char*)strchr((const char*)szUserPass, ':');
   if (szClientPass == NULL) {
     ifPass.close();
     return (ACCESS_FAILED);
@@ -288,7 +288,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
   while ((! ifPass.eof()) && (bFound == false)) {
     ifPass.getline(szBuf, SMALLBUF, '\n');
     szUser = szBuf;
-    szPass = strchr((const char*)szBuf, ':');
+    szPass = (char*)strchr((const char*)szBuf, ':');
     if (szPass == NULL)
       continue;
     *szPass = NULL;
