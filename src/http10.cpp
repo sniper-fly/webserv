@@ -24,6 +24,7 @@
 #include "http10.hpp"
 #include "http11.hpp"
 #include "util.hpp"
+#include "ftutil.hpp"
 #include "cgi.hpp"
 
 // ------------------------------------------------------------------
@@ -89,7 +90,7 @@ char* ResolvePath(char* szUri) {
 
   // Now we have the first component.
   szRoot[i] = '\0';
-  if (*szRest != NULL)
+  if (*szRest != '\0')
     szRest++; // Advance past the '/'.
 
   // Compare it to our list of aliases.
@@ -107,7 +108,7 @@ char* ResolvePath(char* szUri) {
     return (szRoot); // Found.
 
   // Give them a path based on the default root.
-  if (*szRest == NULL) {
+  if (*szRest == '\0') {
     if (*szUri == '/') {
       szRest = szUri + 1;
     } else {
@@ -146,7 +147,7 @@ char* ResolveExec(char* szUri) {
   }
 
   szRoot[i] = '\0';
-  if (*szRest != NULL)
+  if (*szRest != '\0')
     szRest++; // Advance past the '/'.
 
   // Compare to the list of exec path aliases.
@@ -207,7 +208,7 @@ int SendError(
   iRc = stat(szTmp, &sBuf);
   if (iRc == 0) {
     hInfo->ulContentLength = sBuf.st_size;
-    sprintf(szBuf, "Content-Length: %d\r\n", sBuf.st_size);
+    sprintf(szBuf, "Content-Length: %ld\r\n", sBuf.st_size);
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->SendText(szTmp); // Send the file.
