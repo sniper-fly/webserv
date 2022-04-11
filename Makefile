@@ -1,6 +1,6 @@
 CXX = clang++
 INCLUDE = -I"./googletest/include" -I"./include"
-CXXFLAGS = -g -Wall -Wextra -Werror -std=c++98 $(INCLUDE) -MMD -MP
+CXXFLAGS = -g -Wall -Wextra -Werror -pthread -std=c++98 $(INCLUDE) -MMD -MP
 
 ifdef fsanitize
 CXXFLAGS += -fsanitize=address

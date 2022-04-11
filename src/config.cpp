@@ -15,6 +15,7 @@
 #include <sys/types.h>
 
 #include "defines.hpp"
+#include "ftutil.hpp"
 #include "config.hpp"
 
 // ------------------------------------------------------------------
@@ -45,7 +46,7 @@ void SetDefaults();
 // ------------------------------------------------------------------
 
 #define Convert(str)                                                           \
-  for (i = 0; i < strlen(str); i++)                                            \
+  for (int i = 0; i < (int)strlen(str); i++)                                   \
     if (str[i] == '\\')                                                        \
   str[i] = '/'
 
@@ -89,7 +90,7 @@ int ReadConfig(char* szConfigName) {
     memset(szDirective, 0, SMALLBUF);
     ifIn.getline(szBuf, SMALLBUF, '\n');
 
-    if ((szBuf[0] == '#') || (szBuf[0] == NULL))
+    if ((szBuf[0] == '#') || (szBuf[0] == '\0'))
       continue; // Skip comments.
 
     sscanf(szBuf, "%s %s %s", szDirective, szVal1, szVal2); // Parse the line.
