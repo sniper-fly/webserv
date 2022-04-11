@@ -24,6 +24,7 @@
 #include "http10.hpp"
 #include "util.hpp"
 #include "base64.hpp"
+#include "ftutil.hpp"
 
 // ------------------------------------------------------------------
 //
@@ -106,7 +107,6 @@ time_t ConvertDate(char* szDate) {
 char* CreateDate(time_t ttTime) {
   struct tm* tmData;
   char*      szDate;
-  time_t     ttTmp;
 
   ttTime += lGmtOffset; // Adjust for GMT offset from local.
 
@@ -133,7 +133,7 @@ char* CreateDate(time_t ttTime) {
 //
 
 int CheckAuth(char* szPath, Headers* hInfo, int iType) {
-  char *      szTmpPath, *szPtr, *szName;
+  char *      szTmpPath, *szName;
   int         l, iRc;
   bool        bNotFound = true;
   struct stat sBuf;
@@ -281,7 +281,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
     ifPass.close();
     return (ACCESS_FAILED);
   }
-  *szClientPass = NULL;
+  *szClientPass = '\0';
   szClientPass++;
 
   // Compare usernames/passwords one by one.
@@ -291,7 +291,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
     szPass = (char*)strchr((const char*)szBuf, ':');
     if (szPass == NULL)
       continue;
-    *szPass = NULL;
+    *szPass = '\0';
     szPass++;
     if ((ft::stricmp(szClientUser, szUser) == 0) &&
         (strcmp(szClientPass, szPass) == 0))
