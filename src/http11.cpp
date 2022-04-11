@@ -51,7 +51,6 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   int      iRc, iRsp, iMethod;
   char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
   Headers* hInfo;
-  long     lBytes = 0;
   bool     bCgi   = false, bPersistent;
 
   szReq    = strdup(sClient->szOutBuf); // Save the request line.
@@ -108,42 +107,22 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   szCgi           = ResolveExec(szUri); // Check for exec match.
 
   // Now key on the request method and URI given.
-  // OPTIONS with a match on Path.
-  if ((iMethod == OPTIONS) && (szPath != NULL)) {
-    iRsp = DoOptions(sClient, szPath, hInfo, GET);
-  }
-  // OPTIONS with a match on Cgi Path.
-  else if ((iMethod == OPTIONS) && (szCgi != NULL))
-  {
-    iRsp = DoOptions(sClient, szCgi, hInfo, POST);
-  }
-  // Generic OPTIONS.
-  else if (iMethod == OPTIONS)
-  {
-    iRsp = DoOptions(sClient, "*", hInfo, UNKNOWN);
-  }
   // Any POST request.
-  else if (iMethod == POST)
-  {
+  if (iMethod == POST) {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
-  else if ((bCgi == true) && ((iMethod == GET) || (iMethod == HEAD)))
+  else if ((bCgi == true) && (iMethod == GET))
   {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
-  // Any PUT request.
-  //   else if (iMethod == PUT)
-  //   {
-  //     iRsp = DoPut(sClient, hInfo, szPath, szCgi);
-  //   }
   // Any valid DELETE request.
   else if (iMethod == DELETE)
   {
     iRsp = DoDelete(sClient, szPath, szCgi, hInfo);
   }
   // A simple GET or HEAD request.
-  else if (((iMethod == GET) || (iMethod == HEAD)) && (szPath != NULL))
+  else if ((iMethod == GET) && (szPath != NULL))
   {
     iRsp = DoPath11(sClient, iMethod, szPath, szSearch, hInfo);
   }
@@ -510,14 +489,14 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   iCount = 0;
   ifIn.getline(szBuf, SMALLBUF, '\n');
   // Parse the cgi output for headers.
-  while (szBuf[0] != NULL) {
+  while (szBuf[0] != '\0') {
     iCount += strlen(szBuf) + 2;
     szVal = strchr(szBuf, ':');
     if (szVal == NULL) {
       ifIn.getline(szBuf, SMALLBUF, '\n');
       continue;
     }
-    *szVal = NULL;
+    *szVal = '\0';
     szVal++;
     ft::strlwr(szBuf);
     // Look for and allow proper response headers.
@@ -646,270 +625,6 @@ char* MakeUnique(char* szDir, char* szExt) {
   }
   return (szFileName);
 }
-
-// --------------------------------------------------------
-//
-// DoTrace
-//
-// Perform a HTTP trace on the request just received.
-//
-
-int DoTrace(Socket* sClient, Headers* hInfo) {
-  std::ofstream ofOut;
-  char *        szName, szBuf[SMALLBUF], *szTmp;
-  struct stat   sBuf;
-  int           iRc;
-  bool          bPersistent = true;
-
-  szName = tmpnam(NULL); // Request temporary filename.
-  ofOut.open(szName);
-  if (! ofOut) {
-    hInfo->RcvHeaders(sClient);
-    bPersistent = hInfo->bPersistent;
-    delete hInfo;
-    SendError(sClient, (char*)"Server error.", 500, (char*)HTTP_1_1, hInfo);
-    return bPersistent;
-  }
-
-  while (sClient->szOutBuf[0] != NULL) {
-    ofOut << sClient->szOutBuf << std::endl;
-    // Look for Connection header.
-    szTmp = strchr(sClient->szOutBuf, ':');
-    if (szTmp != NULL) {
-      *szTmp = NULL;
-      szTmp++;
-      if (ft::stricmp(sClient->szOutBuf, "connection") == 0) {
-        sscanf(szTmp, "%s", szBuf);
-        if (ft::stricmp(szBuf, "close") == 0) {
-          bPersistent = false;
-        }
-      }
-    }
-    sClient->RecvTeol(NO_EOL);
-  }
-  ofOut.close();
-  iRc = stat(szName, &sBuf);
-  if (iRc == 0) {
-    sClient->Send("HTTP/1.1 200 \r\n");
-    sClient->Send("Server: ");
-    sClient->Send(szServerVer);
-    sClient->Send("\r\n");
-    szTmp = CreateDate(time(NULL)); // Create a date header.
-    if (szTmp != NULL) {
-      sClient->Send("Date: ");
-      sClient->Send(szTmp);
-      sClient->Send("\r\n");
-      delete[] szTmp;
-    }
-    sClient->Send("Content-Type: text/http\r\n");
-
-    hInfo->ulContentLength = sBuf.st_size; // Save the entity size.
-    sprintf(szBuf, "Content-Length: %ld\r\n", sBuf.st_size);
-    sClient->Send(szBuf);
-    sClient->Send("\r\n");
-
-    iRc = sClient->SendText(szName);
-  }
-  unlink(szName);
-  return bPersistent;
-}
-
-// --------------------------------------------------------
-//
-// DoOptions
-//
-// Figure out the options available for the specified resource.
-//
-
-int DoOptions(Socket* sClient, char* szPath, Headers* hInfo, int iType) {
-  char* szTmp;
-
-  sClient->Send("HTTP/1.1 200 OK \r\n");
-  sClient->Send("Server: ");
-  sClient->Send(szServerVer);
-  sClient->Send("\r\n");
-  szTmp = CreateDate(time(NULL)); // Create a date header.
-  if (szTmp != NULL) {
-    sClient->Send("Date: ");
-    sClient->Send(szTmp);
-    sClient->Send("\r\n");
-    delete[] szTmp;
-  }
-  sClient->Send("Accept-Encodings: \r\n");
-
-  if (strcmp(szPath, "*") == 0) // General options requested.
-  {
-    sClient->Send("Allow: GET, HEAD, POST, PUT, DELETE, TRACE\r\n");
-    sClient->Send("Accept-Ranges: bytes\n\n");
-  } else if (iType == GET) {
-    sClient->Send("Allow: GET, HEAD \r\n");
-    sClient->Send("Accept-Ranges: bytes\n\n");
-  } else if (iType == POST) {
-    sClient->Send("Allow: POST \r\n");
-  }
-  sClient->Send("\r\n");
-  hInfo->ulContentLength = 0;
-
-  return 200;
-}
-
-// --------------------------------------------------------
-//
-// DoPut
-//
-// Save the entity sent as the specified URI.
-//
-
-/*
-
-int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
-  struct stat   sBuf;
-  char *        szTmp, *szExt, *szLoc, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  std::ofstream ofTmp;
-  int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, j;
-  unsigned long ulRc;
-  bool          bChunked = false;
-
-  // Figure out where to store it.
-  if (szPath != NULL) {
-    szLoc = szPath;
-  } else if (szCgi != NULL) {
-    szLoc = szCgi;
-  } else // Error. Cannot resolve location.
-  {
-    SendError(sClient, "Location not found.", 404, HTTP_1_1, hInfo);
-    return 404;
-  }
-
-  iRc = CheckAuth(szLoc, hInfo, WRITE_ACCESS); // Check for authorization.
-  if (iRc == ACCESS_DENIED)                    // Send request for credentials.
-  {
-    sClient->Send("HTTP/1.1 401 \r\n");
-    sClient->Send("Server: ");
-    sClient->Send(szServerVer);
-    sClient->Send("\r\n");
-    szTmp = CreateDate(time(NULL)); // Create a date header.
-    if (szTmp != NULL) {
-      sClient->Send("Date: ");
-      sClient->Send(szTmp);
-      sClient->Send("\r\n");
-      delete[] szTmp;
-    }
-    sprintf(szBuf, "WWW-Authenticate: Basic realm=\"%s\"\r\n", hInfo->szRealm);
-    sClient->Send(szBuf);
-    sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz401));
-    sClient->Send(szBuf);
-    sClient->Send("\r\n");
-    sClient->Send(sz401);
-    return 401;
-  } else if (iRc == ACCESS_FAILED) // Send forbidden response.
-  {
-    sClient->Send("HTTP/1.1 403 Access Denied\r\n");
-    sClient->Send("Server: ");
-    sClient->Send(szServerVer);
-    sClient->Send("\r\n");
-    szTmp = CreateDate(time(NULL)); // Create a date header.
-    if (szTmp != NULL) {
-      sClient->Send("Date: ");
-      sClient->Send(szTmp);
-      sClient->Send("\r\n");
-      delete[] szTmp;
-    }
-    sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz403));
-    sClient->Send(szBuf);
-    sClient->Send("\r\n");
-    sClient->Send(sz403);
-    return 403;
-  }
-
-  if (hInfo->szRange != NULL) // Range not allowed for PUT.
-  {
-    SendError(
-        sClient, "Range header not accepted for PUT.", 501, HTTP_1_1, hInfo);
-    return 501;
-  }
-  if (hInfo->szIfModSince != NULL) // If-Modified-Since
-  {                                // not allowed for PUT.
-    SendError(sClient, "If-Modified-Since header not accepted for PUT.", 501,
-        HTTP_1_1, hInfo);
-    return 501;
-  }
-
-  // Now check the If headers.
-  iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
-  iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
-  iIfNone  = IfNone(hInfo, sBuf.st_mtime);
-  if ((iIfUnmod == false) || (iIfMatch == false) || (iIfNone == false)) {
-    SendError(sClient, "Precondition failed.", 412, HTTP_1_1, hInfo);
-    return 412;
-  }
-
-  // Accept the resource.
-  if (hInfo->bChunked == true) {
-    bChunked = true;
-  } else if (hInfo->szContentLength == NULL) // They must supply a length.
-  {
-    SendError(sClient, "Length required.", 411, HTTP_1_1, hInfo);
-    return 411;
-  }
-  tmpnam(szFile);
-  ofTmp.open(szFile, std::ios::binary);
-  if (! ofTmp) {
-    SendError(sClient, "Local processing error.", 500, HTTP_1_1, hInfo);
-    return 500;
-  }
-
-  if (bChunked == true) {
-    GetChunked(sClient, ofTmp, hInfo);
-  } else // Use Content-Length instead.
-  {
-    i = 0;
-    while (i < hInfo->ulContentLength) // The actual resource.
-    {
-      j = sClient->Recv(hInfo->ulContentLength - i);
-      i += j;
-      ofTmp.write(sClient->szOutBuf, j);
-    }
-  }
-  ofTmp.close();
-
-  iRc = stat(szLoc, &sBuf); // Check for the resource.
-
-  ulRc = CopyFile(szFile, szLoc, false);
-  unlink(szFile); // Remove the temporary always.
-  if (ulRc != 0) {
-    SendError(sClient, "Local processing error.", 500, HTTP_1_1, hInfo);
-    return 500;
-  }
-
-  if (iRc == 0) // File exists. Overwrite it.
-  {
-    sClient->Send("HTTP/1.1 204 No Content\r\n");
-    iRsp = 204;
-  } else // New resource
-  {
-    sClient->Send("HTTP/1.1 201 Created\r\n");
-    iRsp = 201;
-  }
-  sClient->Send("Server: ");
-  sClient->Send(szServerVer);
-  sClient->Send("\r\n");
-  szTmp = CreateDate(time(NULL)); // Create a date header.
-  if (szTmp != NULL) {
-    sClient->Send("Date: ");
-    sClient->Send(szTmp);
-    sClient->Send("\r\n");
-    delete[] szTmp;
-  }
-  sClient->Send("\r\n");
-
-  hInfo->ulContentLength = 0;
-  return iRsp;
-}
-
-*/
 
 // ------------------------------------------------------------------
 //
