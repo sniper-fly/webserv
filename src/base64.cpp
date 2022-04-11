@@ -15,17 +15,6 @@
 #include <fstream>
 #include <time.h>
 
-#ifdef __IBMCPP__
-#include <builtin.h>
-#endif
-
-#ifdef __OS2__
-#define INCL_DOS
-#include <os2.h>
-#elif __WINDOWS__
-#include <windows.h>
-#endif
-
 #include "base64.hpp"
 
 // ------------------------------------------------------------------

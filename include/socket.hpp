@@ -14,22 +14,6 @@
 #ifndef _SOCKET_HPP_
 #define _SOCKET_HPP_
 
-#ifdef __OS2__
-#include <os2.h>
-#define OS2 // This is needed for the socket header files
-#include <types.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet\in_systm.h>
-#include <netinet\in.h>
-#include <netinet\ip.h>
-#elif __WINDOWS__
-#include <windows.h>
-#include <winsock.h>
-#define soclose(x)  closesocket(x)
-#define bzero(x, y) memset((x), '\0', (y))
-#endif
-
 #include <sys/types.h>
 #include <memory.h>
 #include <string.h>

@@ -14,13 +14,6 @@
 #include <fstream>
 #include <sys/types.h>
 
-#ifdef __OS2__
-#define INCL_DOS
-#include <os2.h>
-#elif __WINDOWS__
-#include <windows.h>
-#endif
-
 #include "defines.hpp"
 #include "config.hpp"
 

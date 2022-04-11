@@ -17,18 +17,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef __IBMCPP__
-#include <builtin.h>
-#endif
-
-#ifdef __OS2__
-#define INCL_DOS
-#include <os2.h>
-#define Sleep(x) DosSleep(x) // Portability definition
-#elif __WINDOWS__
-#include <windows.h>
-#endif
-
 #include "defines.hpp"
 #include "config.hpp"
 #include "socket.hpp"

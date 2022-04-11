@@ -10,14 +10,6 @@
 #ifndef _CONFIG_HPP_
 #define _CONFIG_HPP_
 
-#ifdef __OS2__
-#ifndef _OS2WIN_H
-#include <os2.h>
-#endif
-#elif __WINDOWS__
-#include <windows.h>
-#endif
-
 // ------------------------------------------------------------------
 //
 // The Paths class is used to hold path aliases and executable

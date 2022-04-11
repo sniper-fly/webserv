@@ -9,7 +9,6 @@
 
 #include <fcntl.h>
 #include <fstream>
-#include <io.h>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +18,6 @@
 #define INCL_DOS
 #define INCL_DOSFILEMGR
 #define INCL_DOSQUEUES
-#include <os2.h>
 #define Sleep(x) DosSleep(x) // Portability definition
 
 #ifdef __IBMCPP__

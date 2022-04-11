@@ -17,21 +17,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-
-
-#ifdef __IBMCPP__
-#include <builtin.h>
-#endif
-
-#ifdef __OS2__
-#define INCL_DOS
-#include <os2.h>
-#define Sleep(x) DosSleep(x) // Portability definition.
-#elif __WINDOWS__
-#include <windows.h>
-#define DosCopy(x, y, z) CopyFile(x, y, z)
-#define DCPY_EXISTING    false
-#endif
+#include <unistd.h>
 
 #include "3wd.hpp"
 #include "cgi.hpp"
@@ -638,7 +624,7 @@ char* MakeUnique(char* szDir, char* szExt) {
 
   while (bNotUnique) {
     sprintf(szFileName, "%s%08d.%s", szDir, ulNum, szExt);
-    iRc = open(szFileName, O_CREAT | O_EXCL | O_WRONLY | O_TEXT, S_IWRITE);
+    iRc = open(szFileName, O_CREAT | O_EXCL | O_WRONLY, S_IWRITE); // O_TEXT除外
     if (iRc != -1) {
       // Success. This file didn't exist before.
       close(iRc);
