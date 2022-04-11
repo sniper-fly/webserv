@@ -3,7 +3,7 @@
 
 static int DoHttp11(Socket* sClient, char* szMethod, char* szUri) { return 0; }
 
-// void _Optlink W3Conn(void *client)
+// void  W3Conn(void *client)
 void* W3Conn(void* client) {
   printf("simple-server started.\n");
 

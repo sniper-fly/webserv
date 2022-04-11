@@ -186,7 +186,7 @@ void Server() {
 // This is our worker thread to handle the actual request.
 //
 
-void _Optlink W3Conn(void* arg) {
+void W3Conn(void* arg) {
   Socket* sClient;
   char *  szRequest, *szUri, *szVer;
   int     iRc;
