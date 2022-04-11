@@ -13,7 +13,6 @@
 #include <ctype.h>
 #include <iostream>
 #include <fstream>
-#include <process.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>

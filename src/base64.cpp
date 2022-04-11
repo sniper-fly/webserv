@@ -13,7 +13,6 @@
 #include <ctype.h>
 #include <iostream>
 #include <fstream>
-#include <process.h>
 #include <time.h>
 
 #ifdef __IBMCPP__

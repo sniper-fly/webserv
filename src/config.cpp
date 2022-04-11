@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <process.h>
 #include <sys/types.h>
 
 #ifdef __OS2__
