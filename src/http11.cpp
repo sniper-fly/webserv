@@ -704,7 +704,7 @@ int DoTrace(Socket* sClient, Headers* hInfo) {
     sClient->Send("Content-Type: text/http\r\n");
 
     hInfo->ulContentLength = sBuf.st_size; // Save the entity size.
-    sprintf(szBuf, "Content-Length: %d\r\n", sBuf.st_size);
+    sprintf(szBuf, "Content-Length: %ld\r\n", sBuf.st_size);
     sClient->Send(szBuf);
     sClient->Send("\r\n");
 
@@ -921,9 +921,11 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
 
 int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  char *        szTmp, *szExt, szBuf[PATH_LENGTH];
   std::ofstream ofTmp;
-  int           iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone;
+  int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone;
+
+  (void)szCgi;
 
   iRc = CheckAuth(szPath, hInfo, WRITE_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                     // Send request for credentials.
@@ -942,7 +944,7 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
     sprintf(szBuf, "WWW-Authenticate: Basic realm=\"%s\"\r\n", hInfo->szRealm);
     sClient->Send(szBuf);
     sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz401));
+    sprintf(szBuf, "Content-Length: %lu\r\n", strlen(sz401));
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->Send(sz401);
@@ -961,7 +963,7 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
       delete[] szTmp;
     }
     sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz403));
+    sprintf(szBuf, "Content-Length: %lu\r\n", strlen(sz403));
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->Send(sz403);
@@ -970,14 +972,15 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
 
   if (hInfo->szRange != NULL) // Range not allowed for DELETE.
   {
-    SendError(
-        sClient, "Range header not accepted for DELETE.", 501, HTTP_1_1, hInfo);
+    SendError(sClient, (char*)"Range header not accepted for DELETE.", 501,
+        (char*)HTTP_1_1, hInfo);
     return 501;
   }
   if (hInfo->szIfModSince != NULL) // If-Modified-Since
   {                                // not allowed for DELETE.
-    SendError(sClient, "If-Modified-Since header not accepted for DELETE.", 501,
-        HTTP_1_1, hInfo);
+    SendError(sClient,
+        (char*)"If-Modified-Since header not accepted for DELETE.", 501,
+        (char*)HTTP_1_1, hInfo);
     return 501;
   }
 
@@ -986,7 +989,8 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
   iIfNone  = IfNone(hInfo, sBuf.st_mtime);
   if ((iIfUnmod == false) || (iIfMatch == false) || (iIfNone == false)) {
-    SendError(sClient, "Precondition failed.", 412, HTTP_1_1, hInfo);
+    SendError(
+        sClient, (char*)"Precondition failed.", 412, (char*)HTTP_1_1, hInfo);
     return 412;
   }
 
@@ -997,7 +1001,7 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
     if (szExt != NULL) {
       szExt++;
     } else {
-      szExt = "del";
+      szExt = (char*)"del";
     }
     szTmp = MakeUnique(szDeleteDir, szExt);
     ft::copyFile(szPath, szTmp);
@@ -1082,7 +1086,7 @@ int IfMatch(Headers* hInfo, time_t ttMtime) {
   if (hInfo->szIfMatch != NULL) {
     iIfMatch = false; // We fail unless we match.
     szBuf    = new char[SMALLBUF];
-    sprintf(szBuf, "\"%d\"", ttMtime);
+    sprintf(szBuf, "\"%ld\"", ttMtime);
     for (i = 0; hInfo->szIfMatchEtags[i] != NULL; i++) {
       if (strcmp(hInfo->szIfMatchEtags[i], szBuf) == 0) {
         iIfMatch = true;
@@ -1113,7 +1117,7 @@ int IfNone(Headers* hInfo, time_t ttMtime) {
   if (hInfo->szIfNoneMatch != NULL) {
     iIfNone = true; // We're ok unless we match.
     szBuf   = new char[SMALLBUF];
-    sprintf(szBuf, "\"%d\"", ttMtime);
+    sprintf(szBuf, "\"%ld\"", ttMtime);
     for (i = 0; hInfo->szIfNoneMatchEtags[i] != NULL; i++) {
       if (strcmp(hInfo->szIfNoneMatchEtags[i], szBuf) == 0) {
         iIfNone = false;
@@ -1145,7 +1149,7 @@ int IfRange(Headers* hInfo, time_t ttMtime) {
     // Figure out whether it is an etag or date.
     if ((hInfo->szIfRange[0] == '"') || (hInfo->szIfRange[2] == '"')) {
       szBuf = new char[SMALLBUF]; // An etag.
-      sprintf(szBuf, "\"%d\"", ttMtime);
+      sprintf(szBuf, "\"%ld\"", ttMtime);
       if (strcmp(szBuf, hInfo->szIfRange) == 0) {
         delete[] szBuf;
         return true; // Match, send them the resource.
@@ -1232,7 +1236,7 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
       sClient->Send("\r\n");
       sprintf(szBuf, "Content-Type: %s\r\n", eExtMap[iType].szType);
       sClient->Send(szBuf); // Now content-type.
-      sprintf(szBuf, "Content-Range: bytes %d-%d/%d\r\n\r\n",
+      sprintf(szBuf, "Content-Range: bytes %d-%d/%ld\r\n\r\n",
           hInfo->rRanges[i].iStart, hInfo->rRanges[i].iEnd, sBuf->st_size);
       sClient->Send(szBuf); // Now content-range.
 
@@ -1279,7 +1283,7 @@ int GetChunked(Socket* sClient, std::ofstream& ofOut, Headers* hInfo) {
 
     szPtr = strchr(sClient->szOutBuf, ';');
     if (szPtr != NULL)
-      *szPtr = NULL; // Mark end of chunk-size.
+      *szPtr = '\0'; // Mark end of chunk-size.
 
     l = strlen(sClient->szOutBuf); // Find last hex digit.
     l--;
