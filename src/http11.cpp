@@ -61,17 +61,6 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   hInfo    = new Headers();
   iMethod  = CheckMethod(szMethod); // The request method.
 
-  // First, check for TRACE method.
-  if (iMethod == TRACE) {
-    // Do a trace, saving connection.
-    bPersistent = DoTrace(sClient, hInfo);
-    DeHexify(szReq);
-    WriteToLog(sClient, szReq, iRsp, hInfo->ulContentLength);
-    delete[] szReq;
-    delete hInfo;
-    return bPersistent;
-  }
-
   hInfo->RcvHeaders(sClient);          // Grab the request headers.
   bPersistent = hInfo->bPersistent;    // Find out if close was requested.
   iRc         = hInfo->CheckHeaders(); // Make sure none are inconsistent.
