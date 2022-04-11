@@ -21,22 +21,12 @@
 #include <sys/types.h>
 #include <time.h>
 
-
-#ifdef __IBMCPP__
-#endif
-
-#ifdef __OS2__
-#define INCL_DOS
-#define Sleep(x) DosSleep(x) // Portability definition
-#elif __WINDOWS__
-#endif
-
 #include "3wd.hpp"
 #include "config.hpp"
 #include "defines.hpp"
 #include "scodes.hpp"
 #include "socket.hpp"
-
+#include "ftutil.hpp"
 
 // ------------------------------------------------------------------
 //
@@ -59,7 +49,7 @@ int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
   }
 
   szBuf = szSearch;
-  while (*szBuf != NULL) // Replace plus signs with spaces.
+  while (*szBuf != '\0') // Replace plus signs with spaces.
   {
     if (*szBuf == '+')
       *szBuf = ' ';
