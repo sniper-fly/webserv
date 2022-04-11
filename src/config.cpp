@@ -71,8 +71,9 @@ int ReadConfig(char* szConfigName) {
 
   ifIn.open(szConfigName);
   if (! ifIn) {
-    cerr << "Error!" << endl;
-    cerr << "Could not read configuration file: " << szConfigName << endl;
+    std::cerr << "Error!" << std::endl;
+    std::cerr << "Could not read configuration file: " << szConfigName
+              << std::endl;
     return 1;
   }
 
@@ -161,8 +162,8 @@ int ReadConfig(char* szConfigName) {
       szWriteAccess = strdup(szVal1);
     } else if (stricmp(szDirective, "PathAlias") == 0) {
       if (iNum1 == MAX_ALIASES) {
-        cerr << "Exceeded maximum path aliases. " << szVal1 << " ignored."
-             << endl;
+        std::cerr << "Exceeded maximum path aliases. " << szVal1 << " ignored."
+                  << std::endl;
         continue;
       }
       pAliasPath[iNum1].szAlias = strdup(szVal1);
@@ -180,8 +181,8 @@ int ReadConfig(char* szConfigName) {
       iNum1++;
     } else if (stricmp(szDirective, "ExecAlias") == 0) {
       if (iNum2 == MAX_ALIASES) {
-        cerr << "Exceeded maximum exec aliases. " << szVal1 << " ignored."
-             << endl;
+        std::cerr << "Exceeded maximum exec aliases. " << szVal1 << " ignored."
+                  << std::endl;
         continue;
       }
       pAliasExec[iNum2].szAlias = strdup(szVal1);
@@ -199,8 +200,8 @@ int ReadConfig(char* szConfigName) {
       iNum2++;
     } else if (stricmp(szDirective, "ExtType") == 0) {
       if (iNum3 == MAX_EXTENSIONS) {
-        cerr << "Exceeded maximum extensions. " << szVal1 << " ignored."
-             << endl;
+        std::cerr << "Exceeded maximum extensions. " << szVal1 << " ignored."
+                  << std::endl;
         continue;
       }
       eExtMap[iNum3].szExt  = strdup(szVal1);

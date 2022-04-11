@@ -495,7 +495,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
           sClient->szOutBuf[i] = NULL;
           i--;
         }
-        ofOut << sClient->szOutBuf << endl; // Write to temp file.
+        ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
       }
     } else // Binary data.
     {
@@ -680,7 +680,7 @@ int DoTrace(Socket* sClient, Headers* hInfo) {
   }
 
   while (sClient->szOutBuf[0] != NULL) {
-    ofOut << sClient->szOutBuf << endl;
+    ofOut << sClient->szOutBuf << std::endl;
     // Look for Connection header.
     szTmp = strchr(sClient->szOutBuf, ':');
     if (szTmp != NULL) {

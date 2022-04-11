@@ -158,7 +158,7 @@ int DoPath(Socket* sClient, char* szMethod, char* szPath, char* szSearch,
     return 401;
   } else if (iRc == ACCESS_FAILED) // Send forbidden response.
   {
-    cerr << "Auth says ACCESS_FAILED" << endl;
+    std::cerr << "Auth says ACCESS_FAILED" << std::endl;
     sClient->Send("HTTP/1.0 403 Access Denied\r\n");
     sClient->Send("Server: ");
     sClient->Send(szServerVer);
@@ -353,7 +353,7 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
           sClient->szOutBuf[i] = NULL;
           i--;
         }
-        ofOut << sClient->szOutBuf << endl; // Write to temp file.
+        ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
       }
     } else // Binary data.
     {
@@ -599,15 +599,16 @@ int SendError(
     return 500;
   }
   // Write the temp file with the info.
-  ofTmp << "<!doctype html public \"-//IETF//DTD HTML 2.0//EN\">" << endl;
-  ofTmp << "<html><head>" << endl;
-  ofTmp << "<title>Error</title></head>" << endl;
+  ofTmp << "<!doctype html public \"-//IETF//DTD HTML 2.0//EN\">" << std::endl;
+  ofTmp << "<html><head>" << std::endl;
+  ofTmp << "<title>Error</title></head>" << std::endl;
   ofTmp << "<body><h2>Error...</h2>Your request could not be honored.<hr><b>"
-        << endl;
-  ofTmp << szReason << endl;
-  ofTmp << "</b><hr><em>HTTP Response Code:</em> " << iCode << "<br>" << endl;
-  ofTmp << "<em>From server at:</em> " << szHostName << "<br>" << endl;
-  ofTmp << "<em>Running:</em> " << szServerVer << "</body></html>" << endl;
+        << std::endl;
+  ofTmp << szReason << std::endl;
+  ofTmp << "</b><hr><em>HTTP Response Code:</em> " << iCode << "<br>"
+        << std::endl;
+  ofTmp << "<em>From server at:</em> " << szHostName << "<br>" << std::endl;
+  ofTmp << "<em>Running:</em> " << szServerVer << "</body></html>" << std::endl;
   ofTmp.close();
 
   sprintf(szBuf, "%s %d\r\n", szVer, iCode);

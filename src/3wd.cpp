@@ -17,7 +17,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <process.h>
 #include <time.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -73,8 +72,8 @@ int main(int argc, char* argv[]) {
 #ifdef __OS2__
   iRc = sock_init(); // Make sure socket services are available
   if (iRc != 0) {
-    cerr << "Error!" << endl;
-    cerr << "Socket services not available. Exiting." << endl;
+    std::cerr << "Error!" << std::endl;
+    std::cerr << "Socket services not available. Exiting." << std::endl;
     return 1;
   }
 #elif __WINDOWS__
@@ -84,16 +83,16 @@ int main(int argc, char* argv[]) {
 
   iRc = WSAStartup(wVersionRequested, &wsaData);
   if (iRc != 0) {
-    cerr << "Error!" << endl;
-    cerr << "Socket services not available. Exiting." << endl;
+    std::cerr << "Error!" << std::endl;
+    std::cerr << "Socket services not available. Exiting." << std::endl;
     return 1;
   }
 #endif
 
   iRc = ReadConfig("3wd.cf");
   if (iRc) {
-    cerr << "Error!" << endl;
-    cerr << "Error reading configuration file. Exiting." << endl;
+    std::cerr << "Error!" << std::endl;
+    std::cerr << "Error reading configuration file. Exiting." << std::endl;
     return 1; // Exit on error.
   }
   InitCgi();
@@ -107,12 +106,14 @@ int main(int argc, char* argv[]) {
       i += 2;
     } else // Unknown arg, ignore it
     {
-      cerr << "Unknown argument \"" << argv[i] << "\" ignored." << endl;
+      std::cerr << "Unknown argument \"" << argv[i] << "\" ignored."
+                << std::endl;
       i++;
     }
   }
 
-  cerr << "3wd> Starting server on port number " << iPort << "." << endl;
+  std::cerr << "3wd> Starting server on port number " << iPort << "."
+            << std::endl;
 
   signal(SIGABRT, (_SigFunc)Stop);
   signal(SIGBREAK, (_SigFunc)Stop);
@@ -156,8 +157,8 @@ void Server() {
 
   if (! sSock.Create()) // If failure
   {
-    cerr << "Error." << endl;
-    cerr << "Cannot create socket to accept connections." << endl;
+    std::cerr << "Error." << std::endl;
+    std::cerr << "Cannot create socket to accept connections." << std::endl;
     return;
   }
 
@@ -351,10 +352,10 @@ void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
   ofLog.open(szAccessLog, ios::app); // Open log file for appending.
   if (bDnsLookup == true) {
     ofLog << sClient->szPeerName << " - - [" << szTmp << "] \"" << szReq
-          << "\" " << iCode << " " << lBytes << endl;
+          << "\" " << iCode << " " << lBytes << std::endl;
   } else {
     ofLog << sClient->szPeerIp << " - - [" << szTmp << "] \"" << szReq << "\" "
-          << iCode << " " << lBytes << endl;
+          << iCode << " " << lBytes << std::endl;
   }
   ofLog.close();
 

@@ -110,21 +110,22 @@ int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
   }
 
   // Write some html to present the search results.
-  ofOut << "<!doctype html public \"-//IETF//DTD HTML 2.0//EN\">" << endl;
-  ofOut << "<html><head><title>Search Results</title></head><body>" << endl;
-  ofOut << "<h1>Your Search Results</h1><hr>" << endl;
+  ofOut << "<!doctype html public \"-//IETF//DTD HTML 2.0//EN\">" << std::endl;
+  ofOut << "<html><head><title>Search Results</title></head><body>"
+        << std::endl;
+  ofOut << "<h1>Your Search Results</h1><hr>" << std::endl;
   ofOut << "The search on the document <b>" << szLink << "</b> "
-        << "yielded the following results:" << endl;
-  ofOut << "<ul>" << endl;
+        << "yielded the following results:" << std::endl;
+  ofOut << "<ul>" << std::endl;
   for (i = 0; i < 5; i++) {
     if (szTerms[i] != NULL)
       ofOut << "<li><b>" << szTerms[i] << "</b> appeared " << iCounts[i]
-            << " times." << endl;
+            << " times." << std::endl;
   }
-  ofOut << "</ul><p>" << endl;
+  ofOut << "</ul><p>" << std::endl;
   ofOut << "Pick this <a href=\"" << szLink << "\">Link</a> to view it."
-        << endl;
-  ofOut << "</body></html>" << endl;
+        << std::endl;
+  ofOut << "</body></html>" << std::endl;
   ofOut.close();
 
   return 0; // Success code.
