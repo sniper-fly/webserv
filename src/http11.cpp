@@ -133,10 +133,10 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // Any PUT request.
-  else if (iMethod == PUT)
-  {
-    iRsp = DoPut(sClient, hInfo, szPath, szCgi);
-  }
+  //   else if (iMethod == PUT)
+  //   {
+  //     iRsp = DoPut(sClient, hInfo, szPath, szCgi);
+  //   }
   // Any valid DELETE request.
   else if (iMethod == DELETE)
   {
@@ -755,6 +755,8 @@ int DoOptions(Socket* sClient, char* szPath, Headers* hInfo, int iType) {
 // Save the entity sent as the specified URI.
 //
 
+/*
+
 int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
   struct stat   sBuf;
   char *        szTmp, *szExt, *szLoc, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
@@ -902,6 +904,8 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
   return iRsp;
 }
 
+*/
+
 // ------------------------------------------------------------------
 //
 // DoDelete
@@ -991,7 +995,7 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
       szExt = "del";
     }
     szTmp = MakeUnique(szDeleteDir, szExt);
-    DosCopy(szPath, szTmp, DCPY_EXISTING);
+    ft::copyFile(szPath, szTmp);
     delete[] szTmp;
   }
   iRc = unlink(szPath);
