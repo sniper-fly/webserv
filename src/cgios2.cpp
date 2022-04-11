@@ -57,6 +57,8 @@ char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
 //
 
 int ExecCgi(Cgi* cParms) {
+  (void)cParms;
+
   return 0;
 
   /*
@@ -187,8 +189,6 @@ int ExecCgi(Cgi* cParms) {
 //
 
 void InitCgi() {
-  char* szPtr;
-
   szEnvs[0]  = szServerSoftware;
   szEnvs[1]  = szServerName;
   szEnvs[2]  = szGatewayInterface;
