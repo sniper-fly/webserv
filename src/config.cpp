@@ -36,7 +36,7 @@ char *szServerRoot, // The root directory for serving files.
     *szWriteAccess, // The write access file name.
     *szDeleteDir;   // The directory to store deleted resources.
 short sPort;        // The port number to serve.
-BOOL  bDnsLookup,   // Flag whether to do dns reverse lookups.
+bool  bDnsLookup,   // Flag whether to do dns reverse lookups.
     bGmtTime;       // Flag whether to use GMT in access log file.
 int iNumPathAliases, // The number of path aliases.
     iNumExecAliases, // The number of exec aliases.
@@ -145,11 +145,11 @@ int ReadConfig(char* szConfigName) {
       sPort = (short)atoi(szVal1);
     } else if (stricmp(szDirective, "DNSLookup") == 0) {
       if (stricmp(szVal1, "Off") == 0) {
-        bDnsLookup = FALSE;
+        bDnsLookup = false;
       }
     } else if (stricmp(szDirective, "LogTime") == 0) {
       if (stricmp(szVal1, "GMT") == 0) {
-        bGmtTime = TRUE;
+        bGmtTime = true;
       }
     } else if (stricmp(szDirective, "ReadAccessName") == 0) {
       if (szReadAccess)
@@ -223,7 +223,7 @@ int ReadConfig(char* szConfigName) {
 
   for (i = 0; i < iNumTypes; i++) {
     if (strstr(eExtMap[i].szType, "text/") == NULL) {
-      eExtMap[i].bBinary = TRUE;
+      eExtMap[i].bBinary = true;
     }
   }
 
@@ -240,8 +240,8 @@ int ReadConfig(char* szConfigName) {
 
 void SetDefaults() {
   sPort         = WWW_PORT;
-  bDnsLookup    = TRUE;
-  bGmtTime      = FALSE;
+  bDnsLookup    = true;
+  bGmtTime      = false;
   szReadAccess  = strdup(HTREADACCESS);
   szWriteAccess = strdup(HTWRITEACCESS);
 }

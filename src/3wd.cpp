@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
   int  iPort = WWW_PORT;
   int  i, iRc;
   char szCmd[512];
-  BOOL bNotDone = TRUE;
+  bool bNotDone = true;
 
 #ifdef __OS2__
   iRc = sock_init(); // Make sure socket services are available
@@ -194,7 +194,7 @@ void W3Conn(void* arg) {
   sClient = (Socket*)arg; // Get the pointer to the socket
 
   // Resolve the IP Name if requested.
-  if (bDnsLookup == TRUE) {
+  if (bDnsLookup == true) {
     sClient->ResolveName();
   }
 
@@ -211,7 +211,7 @@ void W3Conn(void* arg) {
     DoHttp10(sClient, szRequest, szUri);
   } else if (stricmp(szVer, "http/1.1") == 0) {
     iRc = DoHttp11(sClient, szRequest, szUri);
-    while (iRc == TRUE) // Do persistent connections.
+    while (iRc == true) // Do persistent connections.
     {
       sClient->RecvTeol(NO_EOL);
       sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
@@ -331,7 +331,7 @@ void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
 
   time(&ttLocal);
   // Use GMT in the log file if true and available.
-  if ((bGmtTime == TRUE) && ((tmPtr = gmtime(&ttLocal)) != NULL)) {
+  if ((bGmtTime == true) && ((tmPtr = gmtime(&ttLocal)) != NULL)) {
     sprintf(szTmp, "%02d/%s/%4d:%02d:%02d:%02d 000", tmPtr->tm_mday,
         szMonth[tmPtr->tm_mon], (tmPtr->tm_year + 1900), tmPtr->tm_hour,
         tmPtr->tm_min, tmPtr->tm_sec);
@@ -349,7 +349,7 @@ void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
   }
 
   ofLog.open(szAccessLog, ios::app); // Open log file for appending.
-  if (bDnsLookup == TRUE) {
+  if (bDnsLookup == true) {
     ofLog << sClient->szPeerName << " - - [" << szTmp << "] \"" << szReq
           << "\" " << iCode << " " << lBytes << endl;
   } else {

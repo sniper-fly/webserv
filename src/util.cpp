@@ -148,7 +148,7 @@ char* CreateDate(time_t ttTime) {
 int CheckAuth(char* szPath, Headers* hInfo, int iType) {
   char *      szTmpPath, *szPtr, *szName;
   int         l, iRc;
-  BOOL        bNotFound = TRUE;
+  bool        bNotFound = true;
   struct stat sBuf;
 
   if (iType == READ_ACCESS) // Check for read or write access.
@@ -178,13 +178,13 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
     if (iRc == 0) // We found the file.
     {
       iRc       = CheckFile(szTmpPath, hInfo);
-      bNotFound = FALSE;
+      bNotFound = false;
       continue;
     }
   }
   delete[] szTmpPath;
 
-  if (bNotFound == TRUE) // No access file found. Return ok.
+  if (bNotFound == true) // No access file found. Return ok.
   {
     return (ACCESS_OK);
   }
@@ -270,7 +270,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
   char *szUserPass, *szBuf, *szClientUser, *szClientPass, *szUser, *szPass,
       *szCode;
   ifstream ifPass;
-  BOOL     bFound = FALSE;
+  bool     bFound = false;
 
   szCode = new char[strlen(hInfo->szAuth)];
   sscanf(hInfo->szAuth, "%*s %s", szCode);
@@ -298,7 +298,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
   szClientPass++;
 
   // Compare usernames/passwords one by one.
-  while ((! ifPass.eof()) && (bFound == FALSE)) {
+  while ((! ifPass.eof()) && (bFound == false)) {
     ifPass.getline(szBuf, SMALLBUF, '\n');
     szUser = szBuf;
     szPass = strchr((const char*)szBuf, ':');
@@ -310,7 +310,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
         (strcmp(szClientPass, szPass) == 0)) {
       hInfo->szAuthType   = strdup("basic");
       hInfo->szRemoteUser = strdup(szUser);
-      bFound              = TRUE;
+      bFound              = true;
     }
     memset(szBuf, 0, SMALLBUF);
   }
@@ -318,7 +318,7 @@ int BasicCheck(char* szFile, Headers* hInfo) {
   delete[] szBuf;
   delete[] szUserPass;
 
-  if (bFound == TRUE) {
+  if (bFound == true) {
     return (ACCESS_OK);
   }
 

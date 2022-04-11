@@ -52,7 +52,7 @@ void DoHttp10(Socket* sClient, char* szMethod, char* szUri) {
   char *   szReq, *szCgi, *szPath, *szTmp, *szSearch;
   Headers* hInfo;
   long     lBytes = 0;
-  BOOL     bExec = FALSE, bCgi = FALSE;
+  bool     bExec = false, bCgi = false;
 
   szReq    = strdup(sClient->szOutBuf); // Save the request line.
   hInfo    = new Headers();
@@ -74,7 +74,7 @@ void DoHttp10(Socket* sClient, char* szMethod, char* szUri) {
     szSearch       = strdup(szTmp);
     hInfo->szQuery = strdup(szSearch);
     if (strchr(szSearch, '=') != NULL) {
-      bCgi = TRUE; // Only a cgi request can contain an equal sign.
+      bCgi = true; // Only a cgi request can contain an equal sign.
     }
   }
 
@@ -86,7 +86,7 @@ void DoHttp10(Socket* sClient, char* szMethod, char* szUri) {
     iRsp = DoExec(sClient, iMethod, szCgi, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
-  else if ((bCgi == TRUE) && ((iMethod == GET) || (iMethod == HEAD)))
+  else if ((bCgi == true) && ((iMethod == GET) || (iMethod == HEAD)))
   {
     iRsp = DoExec(sClient, iMethod, szCgi, hInfo);
   }
@@ -104,7 +104,7 @@ void DoHttp10(Socket* sClient, char* szMethod, char* szUri) {
   sClient->Close();
   delete[] szReq;
   delete hInfo;
-  if ((szSearch != NULL) && (bCgi == FALSE)) {
+  if ((szSearch != NULL) && (bCgi == false)) {
     unlink(szPath); // The temporary search file.
     delete[] szSearch;
   }
@@ -233,7 +233,7 @@ int DoPath(Socket* sClient, char* szMethod, char* szPath, char* szSearch,
 
     if (strcmp(szMethod, "GET") == 0) // Don't send unless GET.
     {
-      if (eExtMap[iType].bBinary == TRUE) {
+      if (eExtMap[iType].bBinary == true) {
         iRc = sClient->SendBinary(szPath);
       } else {
         iRc = sClient->SendText(szPath);
@@ -478,7 +478,7 @@ int FindType(char* szPath) {
 char* ResolvePath(char* szUri) {
   int   i;
   char *szRest, *szRoot;
-  BOOL  bFound = FALSE;
+  bool  bFound = false;
 
   if (strcmp(szUri, "/") == 0) // They asked for the root directory doc.
   {
@@ -510,12 +510,12 @@ char* ResolvePath(char* szUri) {
     if (stricmp(szRoot, pAliasPath[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasPath[i].szTrue, szRest);
-      bFound = TRUE;
+      bFound = true;
       break;
     }
   }
 
-  if (bFound == TRUE)
+  if (bFound == true)
     return (szRoot); // Found.
 
   // Give them a path based on the default root.
@@ -543,7 +543,7 @@ char* ResolvePath(char* szUri) {
 char* ResolveExec(char* szUri) {
   int   i;
   char *szRest, *szRoot;
-  BOOL  bFound = FALSE;
+  bool  bFound = false;
 
   szRest = szUri;
   szRoot = new char[PATH_LENGTH];
@@ -566,13 +566,13 @@ char* ResolveExec(char* szUri) {
     if (stricmp(szRoot, pAliasExec[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasExec[i].szTrue, szRest);
-      bFound = TRUE;
+      bFound = true;
       break;
     }
   }
 
   // Return true if found. NULL otherwise.
-  if (bFound == TRUE)
+  if (bFound == true)
     return (szRoot);
   delete[] szRoot;
   return (NULL);

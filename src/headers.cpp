@@ -130,7 +130,7 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szConnection;
             szConnection = strdup(szTmp);
             if (stricmp(szConnection, "close") == 0) {
-              bPersistent = FALSE;
+              bPersistent = false;
             }
           } else if (strcmp(szHdr, "content-length") == 0) {
             if (szContentLength)
@@ -228,7 +228,7 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szTransferEncoding;
             szTransferEncoding = strdup(szTmp);
             if (stricmp(szTransferEncoding, "chunked") == 0) {
-              bChunked = TRUE;
+              bChunked = true;
             }
           }
           break;
@@ -272,13 +272,13 @@ int Headers::CheckHeaders() {
 
   // Check for the host header first.
   if (szHost == NULL)
-    return FALSE;
+    return false;
 
   // First check to make sure the If-Unmodified-Since time
   // is not before the If-Modified-Since time.
   if ((szIfModSince != NULL) && (szIfUnmodSince != NULL)) {
     if (ttIfUnmodSince <= ttIfModSince) {
-      return FALSE;
+      return false;
     }
   }
 
@@ -288,13 +288,13 @@ int Headers::CheckHeaders() {
     for (i = 0; szIfMatchEtags[i] != NULL; i++) {
       for (j = 0; szIfNoneMatchEtags[j] != NULL; j++) {
         if (strcmp(szIfMatchEtags[i], szIfNoneMatchEtags[j]) == 0) {
-          return FALSE;
+          return false;
         }
       }
     }
   }
 
-  return TRUE;
+  return true;
 }
 
 // ------------------------------------------------------------------
@@ -423,13 +423,13 @@ Headers::Headers() {
   szRealm            = NULL;
   ttIfModSince       = 0;
   ttIfUnmodSince     = 0;
-  bPersistent        = TRUE;
+  bPersistent        = true;
   ulContentLength    = 0;
   szIfMatchEtags     = NULL;
   szIfNoneMatchEtags = NULL;
   rRanges            = NULL;
   iRangeNum          = 0;
-  bChunked           = FALSE;
+  bChunked           = false;
 }
 
 // ------------------------------------------------------------------
@@ -574,7 +574,7 @@ int Headers::FindRanges(int iSize) {
   if (szRange == NULL)
     return 1; // Nothing to do.
 
-  bError = FALSE;
+  bError = false;
   szTmp  = szRange;
   iNum   = 1;
   while (*szTmp != NULL) // Count the number of ranges.
@@ -605,7 +605,7 @@ int Headers::FindRanges(int iSize) {
       rRanges[iIdx].iStart = atoi(szBuf);
 
       if (*szTmp != '-')
-        bError = TRUE; // Wrong format.
+        bError = true; // Wrong format.
       szTmp++;
       if (isdigit(*szTmp)) // Found range end.
       {
@@ -626,8 +626,8 @@ int Headers::FindRanges(int iSize) {
     } else if (*szTmp == '-') // No start range given.
     {
       szTmp++;
-      if (isdigit(*szTmp) != TRUE)
-        bError = TRUE;
+      if (isdigit(*szTmp) != true)
+        bError = true;
       i = 0;
       while (isdigit(*szTmp)) // Grab number of bytes.
       {
@@ -649,7 +649,7 @@ int Headers::FindRanges(int iSize) {
   delete[] szBuf;
   iRangeNum = iIdx;
 
-  if (bError == TRUE) // Error in ranges.
+  if (bError == true) // Error in ranges.
   {
     delete[] rRanges;
     rRanges   = NULL;

@@ -30,7 +30,7 @@
 #elif __WINDOWS__
 #include <windows.h>
 #define DosCopy(x, y, z) CopyFile(x, y, z)
-#define DCPY_EXISTING    FALSE
+#define DCPY_EXISTING    false
 #endif
 
 #include "3wd.hpp"
@@ -65,7 +65,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
   Headers* hInfo;
   long     lBytes = 0;
-  BOOL     bExec = FALSE, bCgi = FALSE, bPersistent;
+  bool     bExec = false, bCgi = false, bPersistent;
 
   szReq    = strdup(sClient->szOutBuf); // Save the request line.
   iRsp     = 200;
@@ -89,7 +89,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   hInfo->RcvHeaders(sClient);          // Grab the request headers.
   bPersistent = hInfo->bPersistent;    // Find out if close was requested.
   iRc         = hInfo->CheckHeaders(); // Make sure none are inconsistent.
-  if (iRc == FALSE)                    // Bad request.
+  if (iRc == false)                    // Bad request.
   {
     iRsp = SendError(sClient,
         "Missing Host header or incompatible headers detected.", 400, HTTP_1_1,
@@ -109,7 +109,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
     szSearch       = strdup(szTmp);
     hInfo->szQuery = strdup(szSearch);
     if (strchr(szSearch, '=') != NULL) {
-      bCgi = TRUE; // Only a cgi request can contain an equal sign.
+      bCgi = true; // Only a cgi request can contain an equal sign.
     }
   }
 
@@ -141,7 +141,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
-  else if ((bCgi == TRUE) && ((iMethod == GET) || (iMethod == HEAD)))
+  else if ((bCgi == true) && ((iMethod == GET) || (iMethod == HEAD)))
   {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
@@ -177,7 +177,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   WriteToLog(sClient, szReq, iRsp, hInfo->ulContentLength);
   delete[] szReq;
   delete hInfo;
-  if ((szSearch != NULL) && (bCgi == FALSE)) {
+  if ((szSearch != NULL) && (bCgi == false)) {
     unlink(szPath); // The temporary search file.
     delete[] szSearch;
   }
@@ -276,26 +276,26 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   iIfRange  = IfRange(hInfo, sBuf.st_mtime);
   iRangeErr = hInfo->FindRanges(sBuf.st_size);
 
-  // Check to make sure any If headers are FALSE.
+  // Check to make sure any If headers are false.
   // Either not-modified or no etags matched.
-  if ((iIfMod == FALSE) || (iIfNone == FALSE)) {
+  if ((iIfMod == false) || (iIfNone == false)) {
     sClient->Send("HTTP/1.1 304 Not Modified\r\n");
     iRsp = 304;
   }
   // No matching etags or it's been modified.
-  else if ((iIfMatch == FALSE) || (iIfUnmod == FALSE))
+  else if ((iIfMatch == false) || (iIfUnmod == false))
   {
     sClient->Send("HTTP/1.1 412 Precondition Failed\r\n");
     iRsp = 412;
   }
   // Resource matched so send just the bytes requested.
-  else if ((iIfRange == TRUE) && (iRangeErr == 0))
+  else if ((iIfRange == true) && (iRangeErr == 0))
   {
     sClient->Send("HTTP/1.1 206 Partial Content\r\n");
     iRsp = 206;
   }
   // Resource didn't match, so send the entire entity.
-  else if ((hInfo->szIfRange != NULL) && (iIfRange == FALSE))
+  else if ((hInfo->szIfRange != NULL) && (iIfRange == false))
   {
     sClient->Send("HTTP/1.1 200 OK\r\n");
     iRsp = 200;
@@ -361,7 +361,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 
   if (iMethod == GET) // Don't send unless GET.
   {
-    if (eExtMap[iType].bBinary == TRUE) {
+    if (eExtMap[iType].bBinary == true) {
       iRc = sClient->SendBinary(szPath);
     } else {
       iRc = sClient->SendText(szPath);
@@ -441,9 +441,9 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
   iIfNone  = IfNone(hInfo, sBuf.st_mtime);
 
-  // Check to make sure any If headers are FALSE.
+  // Check to make sure any If headers are false.
   // No match on etags or it's been modified or an etag did match.
-  if ((iIfMatch == FALSE) || (iIfUnmod == FALSE) || (iIfNone == FALSE)) {
+  if ((iIfMatch == false) || (iIfUnmod == false) || (iIfNone == false)) {
     sClient->Send("HTTP/1.1 412 Precondition Failed\r\n");
     iRsp = 412;
   }
@@ -629,7 +629,7 @@ int CheckMethod(char* szMethod) {
 
 char* MakeUnique(char* szDir, char* szExt) {
   ULONG ulNum      = 0;
-  BOOL  bNotUnique = TRUE;
+  bool  bNotUnique = true;
   int   iRc;
   char* szFileName;
 
@@ -641,7 +641,7 @@ char* MakeUnique(char* szDir, char* szExt) {
     if (iRc != -1) {
       // Success. This file didn't exist before.
       close(iRc);
-      bNotUnique = FALSE;
+      bNotUnique = false;
       continue;
     }
 
@@ -649,7 +649,7 @@ char* MakeUnique(char* szDir, char* szExt) {
     if (ulNum > 99999999) {
       delete[] szFileName;
       szFileName = NULL;
-      bNotUnique = FALSE;
+      bNotUnique = false;
     }
   }
   return (szFileName);
@@ -667,7 +667,7 @@ int DoTrace(Socket* sClient, Headers* hInfo) {
   char *      szName, szBuf[SMALLBUF], *szTmp;
   struct stat sBuf;
   int         iRc;
-  BOOL        bPersistent = TRUE;
+  bool        bPersistent = true;
 
   szName = tmpnam(NULL); // Request temporary filename.
   ofOut.open(szName);
@@ -689,7 +689,7 @@ int DoTrace(Socket* sClient, Headers* hInfo) {
       if (stricmp(sClient->szOutBuf, "connection") == 0) {
         sscanf(szTmp, "%s", szBuf);
         if (stricmp(szBuf, "close") == 0) {
-          bPersistent = FALSE;
+          bPersistent = false;
         }
       }
     }
@@ -774,7 +774,7 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
   ofstream      ofTmp;
   int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, j;
   unsigned long ulRc;
-  BOOL          bChunked = FALSE;
+  bool          bChunked = false;
 
   // Figure out where to store it.
   if (szPath != NULL) {
@@ -847,14 +847,14 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
   iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
   iIfNone  = IfNone(hInfo, sBuf.st_mtime);
-  if ((iIfUnmod == FALSE) || (iIfMatch == FALSE) || (iIfNone == FALSE)) {
+  if ((iIfUnmod == false) || (iIfMatch == false) || (iIfNone == false)) {
     SendError(sClient, "Precondition failed.", 412, HTTP_1_1, hInfo);
     return 412;
   }
 
   // Accept the resource.
-  if (hInfo->bChunked == TRUE) {
-    bChunked = TRUE;
+  if (hInfo->bChunked == true) {
+    bChunked = true;
   } else if (hInfo->szContentLength == NULL) // They must supply a length.
   {
     SendError(sClient, "Length required.", 411, HTTP_1_1, hInfo);
@@ -867,7 +867,7 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
     return 500;
   }
 
-  if (bChunked == TRUE) {
+  if (bChunked == true) {
     GetChunked(sClient, ofTmp, hInfo);
   } else // Use Content-Length instead.
   {
@@ -989,7 +989,7 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
   iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
   iIfNone  = IfNone(hInfo, sBuf.st_mtime);
-  if ((iIfUnmod == FALSE) || (iIfMatch == FALSE) || (iIfNone == FALSE)) {
+  if ((iIfUnmod == false) || (iIfMatch == false) || (iIfNone == false)) {
     SendError(sClient, "Precondition failed.", 412, HTTP_1_1, hInfo);
     return 412;
   }
@@ -1043,12 +1043,12 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
 int IfModSince(Headers* hInfo, time_t ttMtime) {
   if (hInfo->szIfModSince != NULL) {
     if ((hInfo->ttIfModSince > 0) && (hInfo->ttIfModSince < ttMtime)) {
-      return TRUE;
+      return true;
     } else {
-      return FALSE;
+      return false;
     }
   }
-  return TRUE; // Default is TRUE.
+  return true; // Default is true.
 }
 
 // ------------------------------------------------------------------
@@ -1062,12 +1062,12 @@ int IfModSince(Headers* hInfo, time_t ttMtime) {
 int IfUnmodSince(Headers* hInfo, time_t ttMtime) {
   if (hInfo->szIfUnmodSince != NULL) {
     if ((hInfo->ttIfUnmodSince > 0) && (hInfo->ttIfUnmodSince > ttMtime)) {
-      return TRUE;
+      return true;
     } else {
-      return FALSE;
+      return false;
     }
   }
-  return TRUE; // Default is TRUE.
+  return true; // Default is true.
 }
 
 // ------------------------------------------------------------------
@@ -1079,21 +1079,21 @@ int IfUnmodSince(Headers* hInfo, time_t ttMtime) {
 //
 
 int IfMatch(Headers* hInfo, time_t ttMtime) {
-  int   iIfMatch = TRUE, i;
+  int   iIfMatch = true, i;
   char *szBuf, szEtagStar[] = "*";
 
   // Check to see if any etags match.
   if (hInfo->szIfMatch != NULL) {
-    iIfMatch = FALSE; // We fail unless we match.
+    iIfMatch = false; // We fail unless we match.
     szBuf    = new char[SMALLBUF];
     sprintf(szBuf, "\"%d\"", ttMtime);
     for (i = 0; hInfo->szIfMatchEtags[i] != NULL; i++) {
       if (strcmp(hInfo->szIfMatchEtags[i], szBuf) == 0) {
-        iIfMatch = TRUE;
+        iIfMatch = true;
         break;
       }
       if (strcmp(hInfo->szIfMatchEtags[i], szEtagStar) == 0) {
-        iIfMatch = TRUE;
+        iIfMatch = true;
         break;
       }
     }
@@ -1110,21 +1110,21 @@ int IfMatch(Headers* hInfo, time_t ttMtime) {
 //
 
 int IfNone(Headers* hInfo, time_t ttMtime) {
-  int   iIfNone = TRUE, i;
+  int   iIfNone = true, i;
   char *szBuf, szEtagStar[] = "*";
 
   // Check to see if any of the If-None-Match etags match
   if (hInfo->szIfNoneMatch != NULL) {
-    iIfNone = TRUE; // We're ok unless we match.
+    iIfNone = true; // We're ok unless we match.
     szBuf   = new char[SMALLBUF];
     sprintf(szBuf, "\"%d\"", ttMtime);
     for (i = 0; hInfo->szIfNoneMatchEtags[i] != NULL; i++) {
       if (strcmp(hInfo->szIfNoneMatchEtags[i], szBuf) == 0) {
-        iIfNone = FALSE;
+        iIfNone = false;
         break;
       }
       if (strcmp(hInfo->szIfNoneMatchEtags[i], szEtagStar) == 0) {
-        iIfNone = FALSE;
+        iIfNone = false;
         break;
       }
     }
@@ -1152,18 +1152,18 @@ int IfRange(Headers* hInfo, time_t ttMtime) {
       sprintf(szBuf, "\"%d\"", ttMtime);
       if (strcmp(szBuf, hInfo->szIfRange) == 0) {
         delete[] szBuf;
-        return TRUE; // Match, send them the resource.
+        return true; // Match, send them the resource.
       }
       delete[] szBuf;
     } else {
       ttDate = ConvertDate(hInfo->szIfRange); // We found a date.
       if (ttDate >= ttMtime) {
-        return TRUE; // Match, send them the resource.
+        return true; // Match, send them the resource.
       }
     }
   }
 
-  return FALSE; // No match.
+  return false; // No match.
 }
 
 // ------------------------------------------------------------------
@@ -1270,14 +1270,14 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
 //
 
 int GetChunked(Socket* sClient, ofstream& ofOut, Headers* hInfo) {
-  BOOL  bNotDone = TRUE;
+  bool  bNotDone = true;
   char* szPtr;
   int   iBytes, i, j, l, iFactor;
 
-  while (bNotDone == TRUE) {
+  while (bNotDone == true) {
     sClient->RecvTeol(NO_EOL); // Grab a line. Should have chunk size.
     if (strcmp(sClient->szOutBuf, "0") == 0) {
-      bNotDone = FALSE; // The end of the chunks.
+      bNotDone = false; // The end of the chunks.
       continue;
     }
 
