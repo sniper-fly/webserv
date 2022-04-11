@@ -14,6 +14,7 @@
 #ifndef _3WD_HPP_
 #define _3WD_HPP_
 
+#include <semaphore.h>
 #include "socket.hpp"
 
 // ------------------------------------------------------------------
@@ -37,6 +38,9 @@ extern volatile int iAccessLock;
 extern volatile int iErrorLock;
 extern const char   szMonth[12][4];
 extern const char   szDay[7][4];
+
+extern sem_t* g_logSem;
+extern sem_t* g_cgiSem;
 
 // ------------------------------------------------------------------
 

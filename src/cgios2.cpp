@@ -24,6 +24,7 @@
 #include <builtin.h>
 #endif
 
+#include "3wd.hpp"
 #include "cgi.hpp"
 #include "config.hpp"
 #include "defines.hpp"
@@ -65,9 +66,7 @@ int ExecCgi(Cgi* cParms) {
   std::ofstream ofOut;
 
   // Lock all the other threads out.
-  while (__lxchg(&iCgiLock, 1) != 0) {
-    Sleep(1); // Sleep, not spin.
-  }
+  sem_wait(g_cgiSem);
 
   _setmode(STDIN, O_BINARY); // Binary mode for stdin/stdout.
   _setmode(STDOUT, O_BINARY);
@@ -170,7 +169,7 @@ int ExecCgi(Cgi* cParms) {
   fclose(fpin);
 
   // Unlock cgi access.
-  __lxchg(&iCgiLock, 0);
+  sem_post(g_cgiSem);
 
   return (0);
 }

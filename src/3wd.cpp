@@ -21,8 +21,11 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "signal.hpp"
+#include <fcntl.h>
+#include <pthread.h>
+#include <semaphore.h>
 
+#include "signal.hpp"
 #include "socket.hpp"
 #include "defines.hpp"
 #include "3wd.hpp"
@@ -52,31 +55,20 @@ const char szDay[7][4]    = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 // Our main function and entry point
 //
 
+sem_t* g_logSem;
+sem_t* g_cgiSem;
+
 int main(int argc, char* argv[]) {
   int  iPort = WWW_PORT;
   int  i, iRc;
   char szCmd[512];
   bool bNotDone = true;
 
-#ifdef __OS2__
-  iRc = sock_init(); // Make sure socket services are available
-  if (iRc != 0) {
-    std::cerr << "Error!" << std::endl;
-    std::cerr << "Socket services not available. Exiting." << std::endl;
-    return 1;
-  }
-#elif __WINDOWS__
-  WORD    wVersionRequested;
-  WSADATA wsaData;
-  wVersionRequested = MAKEWORD(1, 1);
-
-  iRc = WSAStartup(wVersionRequested, &wsaData);
-  if (iRc != 0) {
-    std::cerr << "Error!" << std::endl;
-    std::cerr << "Socket services not available. Exiting." << std::endl;
-    return 1;
-  }
-#endif
+  // init
+  sem_unlink("/webserv_log");
+  sem_unlink("/webserv_cgi");
+  g_logSem = sem_open("/webserv_log", O_CREAT, 0600, 1);
+  g_cgiSem = sem_open("/webserv_cgi", O_CREAT, 0600, 1);
 
   iRc = ReadConfig("3wd.cf");
   if (iRc) {
@@ -141,9 +133,10 @@ void Stop(int iSig) {
 //
 
 void Server() {
-  Socket sSock, // Our server socket for listening
-      *sClient; // The client socket
-  int iRc;      // Integer return code
+  Socket sSock,  // Our server socket for listening
+      *sClient;  // The client socket
+  int       iRc; // Integer return code
+  pthread_t thread;
 
   if (! sSock.Create()) // If failure
   {
@@ -157,15 +150,16 @@ void Server() {
   for (;;) // Forever
   {
     sClient = sSock.Accept(); // Listen for incoming connections
-
-    if (sClient != NULL) {
-      // We established a good connection, start a thread to handle it
-      iRc = _beginthread(W3Conn, 0, STACKSIZE, (void*)sClient);
-      if (iRc == -1) {
-        // Failure to start thread. Close the connection.
-        sClient->Close();
-        delete sClient;
-      }
+    if (sClient == NULL) {
+      continue;
+    }
+    // We established a good connection, start a thread to handle it
+    iRc =
+        pthread_create(&thread, NULL, (void* (*)(void*))W3Conn, (void*)sClient);
+    if (iRc != 0) {
+      // Failure to start thread. Close the connection.
+      sClient->Close();
+      delete sClient;
     }
   }
 }
@@ -335,9 +329,7 @@ void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
   }
 
   // Lock the log file first.
-  while (__lxchg(&iAccessLock, 1) != 0) {
-    Sleep(1); // Sleep, not spin.
-  }
+  sem_wait(g_logSem);
 
   ofLog.open(szAccessLog, std::ios::app); // Open log file for appending.
   if (bDnsLookup == true) {
@@ -350,7 +342,7 @@ void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
   ofLog.close();
 
   // Unlock the file.
-  __lxchg(&iAccessLock, 0);
+  sem_post(g_logSem);
 
   return;
 }
