@@ -8,9 +8,9 @@
 //
 
 #include <fcntl.h>
-#include <fstream.h>
+#include <fstream>
 #include <io.h>
-#include <iostream.h>
+#include <iostream>
 #include <process.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,8 +33,8 @@
 
 
 #define SMALLBUF 4196
-#define STDIN 0x00000000
-#define STDOUT 0x00000001
+#define STDIN    0x00000000
+#define STDOUT   0x00000001
 
 // ------------------------------------------------------------------
 
@@ -58,13 +58,13 @@ char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
 // stream for all of our threads.
 //
 
-int ExecCgi(Cgi *cParms) {
-  int pIn[2], pOut[2], iNum, iRc;
-  FILE *fpin, *fpout;
-  FILE *fpPost;
-  char szBuf[SMALLBUF], *szArgs[2];
-  int stdin_save = -1, stdout_save = -1;
-  int hfStdin = STDIN, hfStdout = STDOUT;
+int ExecCgi(Cgi* cParms) {
+  int      pIn[2], pOut[2], iNum, iRc;
+  FILE *   fpin, *fpout;
+  FILE*    fpPost;
+  char     szBuf[SMALLBUF], *szArgs[2];
+  int      stdin_save = -1, stdout_save = -1;
+  int      hfStdin = STDIN, hfStdout = STDOUT;
   ofstream ofOut;
 
   // Lock all the other threads out.
@@ -79,7 +79,7 @@ int ExecCgi(Cgi *cParms) {
   DosDupHandle(STDOUT, (PHFILE)&stdout_save);
 
   DosCreatePipe((PHFILE) & (pIn[0]), (PHFILE) & (pIn[1]),
-                4096); // Create the pipe
+      4096); // Create the pipe
   DosCreatePipe((PHFILE) & (pOut[0]), (PHFILE) & (pOut[1]), 4096);
 
   DosSetFHState(pIn[0], OPEN_FLAGS_NOINHERIT); // Child does not inherit
@@ -135,8 +135,8 @@ int ExecCgi(Cgi *cParms) {
     strcpy(szContentType, "CONTENT_TYPE");
   }
   if (strcmp(cParms->hInfo->szMethod, "POST") == 0) {
-    sprintf(szContentLength, "CONTENT_LENGTH=%d",
-            cParms->hInfo->ulContentLength);
+    sprintf(
+        szContentLength, "CONTENT_LENGTH=%d", cParms->hInfo->ulContentLength);
   } else {
     strcpy(szContentLength, "CONTENT_LENGTH=0");
   }
@@ -152,7 +152,7 @@ int ExecCgi(Cgi *cParms) {
   if (cParms->szPost != NULL) // Use POST method.
   {
     fpPost = fopen(cParms->szPost, "rb");
-    iNum = 1;
+    iNum   = 1;
     while (iNum > 0) {
       iNum = fread(szBuf, sizeof(char), SMALLBUF, fpPost);
       fwrite(szBuf, sizeof(char), iNum, fpout);
@@ -187,18 +187,18 @@ int ExecCgi(Cgi *cParms) {
 //
 
 void InitCgi() {
-  char *szPtr;
+  char* szPtr;
 
-  szEnvs[0] = szServerSoftware;
-  szEnvs[1] = szServerName;
-  szEnvs[2] = szGatewayInterface;
-  szEnvs[3] = szServerProtocol;
-  szEnvs[4] = szServerPort;
-  szEnvs[5] = szRequestMethod;
-  szEnvs[6] = szScriptName;
-  szEnvs[7] = szQueryString;
-  szEnvs[8] = szRemoteHost;
-  szEnvs[9] = szRemoteAddr;
+  szEnvs[0]  = szServerSoftware;
+  szEnvs[1]  = szServerName;
+  szEnvs[2]  = szGatewayInterface;
+  szEnvs[3]  = szServerProtocol;
+  szEnvs[4]  = szServerPort;
+  szEnvs[5]  = szRequestMethod;
+  szEnvs[6]  = szScriptName;
+  szEnvs[7]  = szQueryString;
+  szEnvs[8]  = szRemoteHost;
+  szEnvs[9]  = szRemoteAddr;
   szEnvs[10] = szAuthType;
   szEnvs[11] = szRemoteUser;
   szEnvs[12] = szContentType;

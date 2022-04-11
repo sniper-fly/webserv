@@ -9,15 +9,13 @@
 
 #include <ctype.h>
 #include <fcntl.h>
-#include <fstream.h>
-#include <io.h>
-#include <iostream.h>
-#include <process.h>
+#include <fstream>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys\stat.h>
-#include <sys\types.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 
 
@@ -32,7 +30,7 @@
 #elif __WINDOWS__
 #include <windows.h>
 #define DosCopy(x, y, z) CopyFile(x, y, z)
-#define DCPY_EXISTING FALSE
+#define DCPY_EXISTING    FALSE
 #endif
 
 #include "3wd.hpp"
@@ -62,20 +60,20 @@ const int iNumMime = strlen(szMime);
 // This function handles our HTTP/1.0 requests.
 //
 
-int DoHttp11(Socket *sClient, char *szMethod, char *szUri) {
-  int iRc, iRsp, iType, iMethod;
-  char *szReq, *szPath, *szCgi, *szTmp, *szSearch;
-  Headers *hInfo;
-  long lBytes = 0;
-  BOOL bExec = FALSE, bCgi = FALSE, bPersistent;
+int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
+  int      iRc, iRsp, iType, iMethod;
+  char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
+  Headers* hInfo;
+  long     lBytes = 0;
+  BOOL     bExec = FALSE, bCgi = FALSE, bPersistent;
 
-  szReq = strdup(sClient->szOutBuf); // Save the request line.
-  iRsp = 200;
+  szReq    = strdup(sClient->szOutBuf); // Save the request line.
+  iRsp     = 200;
   szSearch = NULL;
-  szPath = NULL;
-  szCgi = NULL;
-  hInfo = new Headers();
-  iMethod = CheckMethod(szMethod); // The request method.
+  szPath   = NULL;
+  szCgi    = NULL;
+  hInfo    = new Headers();
+  iMethod  = CheckMethod(szMethod); // The request method.
 
   // First, check for TRACE method.
   if (iMethod == TRACE) {
@@ -88,14 +86,14 @@ int DoHttp11(Socket *sClient, char *szMethod, char *szUri) {
     return bPersistent;
   }
 
-  hInfo->RcvHeaders(sClient);       // Grab the request headers.
-  bPersistent = hInfo->bPersistent; // Find out if close was requested.
-  iRc = hInfo->CheckHeaders();      // Make sure none are inconsistent.
-  if (iRc == FALSE)                 // Bad request.
+  hInfo->RcvHeaders(sClient);          // Grab the request headers.
+  bPersistent = hInfo->bPersistent;    // Find out if close was requested.
+  iRc         = hInfo->CheckHeaders(); // Make sure none are inconsistent.
+  if (iRc == FALSE)                    // Bad request.
   {
     iRsp = SendError(sClient,
-                     "Missing Host header or incompatible headers detected.",
-                     400, HTTP_1_1, hInfo);
+        "Missing Host header or incompatible headers detected.", 400, HTTP_1_1,
+        hInfo);
     DeHexify(szReq);
     WriteToLog(sClient, szReq, iRsp, hInfo->ulContentLength);
     delete[] szReq;
@@ -108,7 +106,7 @@ int DoHttp11(Socket *sClient, char *szMethod, char *szUri) {
     // Break up the URI into document and and search parameters.
     *szTmp = NULL; // Append NULL to shorter URI.
     szTmp++;       // Let szTmp point to the query terms.
-    szSearch = strdup(szTmp);
+    szSearch       = strdup(szTmp);
     hInfo->szQuery = strdup(szSearch);
     if (strchr(szSearch, '=') != NULL) {
       bCgi = TRUE; // Only a cgi request can contain an equal sign.
@@ -117,10 +115,10 @@ int DoHttp11(Socket *sClient, char *szMethod, char *szUri) {
 
   DeHexify(szUri);                    // Remove any escape sequences.
   hInfo->szMethod = strdup(szMethod); // Save a few items.
-  hInfo->szUri = strdup(szUri);
-  hInfo->szVer = strdup(HTTP_1_1);
-  szPath = ResolvePath(szUri); // Check for path match.
-  szCgi = ResolveExec(szUri);  // Check for exec match.
+  hInfo->szUri    = strdup(szUri);
+  hInfo->szVer    = strdup(HTTP_1_1);
+  szPath          = ResolvePath(szUri); // Check for path match.
+  szCgi           = ResolveExec(szUri); // Check for exec match.
 
   // Now key on the request method and URI given.
   // OPTIONS with a match on Path.
@@ -128,40 +126,49 @@ int DoHttp11(Socket *sClient, char *szMethod, char *szUri) {
     iRsp = DoOptions(sClient, szPath, hInfo, GET);
   }
   // OPTIONS with a match on Cgi Path.
-  else if ((iMethod == OPTIONS) && (szCgi != NULL)) {
+  else if ((iMethod == OPTIONS) && (szCgi != NULL))
+  {
     iRsp = DoOptions(sClient, szCgi, hInfo, POST);
   }
   // Generic OPTIONS.
-  else if (iMethod == OPTIONS) {
+  else if (iMethod == OPTIONS)
+  {
     iRsp = DoOptions(sClient, "*", hInfo, UNKNOWN);
   }
   // Any POST request.
-  else if (iMethod == POST) {
+  else if (iMethod == POST)
+  {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
-  else if ((bCgi == TRUE) && ((iMethod == GET) || (iMethod == HEAD))) {
+  else if ((bCgi == TRUE) && ((iMethod == GET) || (iMethod == HEAD)))
+  {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // Any PUT request.
-  else if (iMethod == PUT) {
+  else if (iMethod == PUT)
+  {
     iRsp = DoPut(sClient, hInfo, szPath, szCgi);
   }
   // Any valid DELETE request.
-  else if (iMethod == DELETE) {
+  else if (iMethod == DELETE)
+  {
     iRsp = DoDelete(sClient, szPath, szCgi, hInfo);
   }
   // A simple GET or HEAD request.
-  else if (((iMethod == GET) || (iMethod == HEAD)) && (szPath != NULL)) {
+  else if (((iMethod == GET) || (iMethod == HEAD)) && (szPath != NULL))
+  {
     iRsp = DoPath11(sClient, iMethod, szPath, szSearch, hInfo);
   }
   // Unknown method used.
-  else if (iMethod == UNKNOWN) {
-    iRsp = SendError(sClient, "Request method not implemented.", 501, HTTP_1_1,
-                     hInfo);
+  else if (iMethod == UNKNOWN)
+  {
+    iRsp = SendError(
+        sClient, "Request method not implemented.", 501, HTTP_1_1, hInfo);
   }
   // Error Condition.
-  else {
+  else
+  {
     iRsp = SendError(sClient, "Resource not found.", 404, HTTP_1_1, hInfo);
   }
 
@@ -190,11 +197,11 @@ int DoHttp11(Socket *sClient, char *szMethod, char *szUri) {
 // document back to the client.
 //
 
-int DoPath11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
-             Headers *hInfo) {
+int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
+    Headers* hInfo) {
   struct stat sBuf;
-  char *szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream ofTmp;
+  char *      szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  ofstream    ofTmp;
   int iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone, iIfRange,
       iRangeErr;
 
@@ -262,11 +269,11 @@ int DoPath11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
   }
 
   // Check If headers.
-  iIfMod = IfModSince(hInfo, sBuf.st_mtime);
-  iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
-  iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
-  iIfNone = IfNone(hInfo, sBuf.st_mtime);
-  iIfRange = IfRange(hInfo, sBuf.st_mtime);
+  iIfMod    = IfModSince(hInfo, sBuf.st_mtime);
+  iIfUnmod  = IfUnmodSince(hInfo, sBuf.st_mtime);
+  iIfMatch  = IfMatch(hInfo, sBuf.st_mtime);
+  iIfNone   = IfNone(hInfo, sBuf.st_mtime);
+  iIfRange  = IfRange(hInfo, sBuf.st_mtime);
   iRangeErr = hInfo->FindRanges(sBuf.st_size);
 
   // Check to make sure any If headers are FALSE.
@@ -276,27 +283,32 @@ int DoPath11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
     iRsp = 304;
   }
   // No matching etags or it's been modified.
-  else if ((iIfMatch == FALSE) || (iIfUnmod == FALSE)) {
+  else if ((iIfMatch == FALSE) || (iIfUnmod == FALSE))
+  {
     sClient->Send("HTTP/1.1 412 Precondition Failed\r\n");
     iRsp = 412;
   }
   // Resource matched so send just the bytes requested.
-  else if ((iIfRange == TRUE) && (iRangeErr == 0)) {
+  else if ((iIfRange == TRUE) && (iRangeErr == 0))
+  {
     sClient->Send("HTTP/1.1 206 Partial Content\r\n");
     iRsp = 206;
   }
   // Resource didn't match, so send the entire entity.
-  else if ((hInfo->szIfRange != NULL) && (iIfRange == FALSE)) {
+  else if ((hInfo->szIfRange != NULL) && (iIfRange == FALSE))
+  {
     sClient->Send("HTTP/1.1 200 OK\r\n");
     iRsp = 200;
   }
   // Only asked for a byte range.
-  else if (iRangeErr == 0) {
+  else if (iRangeErr == 0)
+  {
     sClient->Send("HTTP/1.1 206 Partial Content\r\n");
     iRsp = 206;
   }
   // Must be a plain jane request.
-  else {
+  else
+  {
     sClient->Send("HTTP/1.1 200 OK\r\n");
     iRsp = 200;
   }
@@ -366,14 +378,14 @@ int DoPath11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
 // This function executes our CGI scripts.
 //
 
-int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
-             Headers *hInfo) {
+int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
+    Headers* hInfo) {
   struct stat sBuf;
-  char *szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
-  int iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
-  Cgi *cParms;
-  ofstream ofOut;
-  ifstream ifIn;
+  char *      szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
+  int         iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
+  Cgi*        cParms;
+  ofstream    ofOut;
+  ifstream    ifIn;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
@@ -427,7 +439,7 @@ int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
   // Check If headers.
   iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
-  iIfNone = IfNone(hInfo, sBuf.st_mtime);
+  iIfNone  = IfNone(hInfo, sBuf.st_mtime);
 
   // Check to make sure any If headers are FALSE.
   // No match on etags or it's been modified or an etag did match.
@@ -436,7 +448,8 @@ int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
     iRsp = 412;
   }
   // Go ahead and do the CGI.
-  else {
+  else
+  {
     sClient->Send("HTTP/1.1 200 OK\r\n");
     iRsp = 200;
   }
@@ -458,10 +471,10 @@ int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
   }
 
   // Execute the cgi program here.
-  cParms = new Cgi();
-  cParms->hInfo = hInfo;
+  cParms          = new Cgi();
+  cParms->hInfo   = hInfo;
   cParms->sClient = sClient;
-  cParms->szProg = szPath;
+  cParms->szProg  = szPath;
   if (iMethod == POST) {
     // Grab the posted data.
     cParms->szOutput = NULL;
@@ -477,8 +490,8 @@ int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
         iCount += i;
         // Remove the end of line.
-        while ((sClient->szOutBuf[i] == '\r') ||
-               (sClient->szOutBuf[i] == '\n')) {
+        while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
+        {
           sClient->szOutBuf[i] = NULL;
           i--;
         }
@@ -559,7 +572,7 @@ int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
     hInfo->ulContentLength = sBuf.st_size - iCount;
     ifIn.open(cParms->szOutput, ios::bin);
     ifIn.seekg(iCount, ios::beg);
-    while (!ifIn.eof()) {
+    while (! ifIn.eof()) {
       ifIn.read(szBuf, SMALLBUF);
       i = ifIn.gcount();
       sClient->Send(szBuf, i);
@@ -587,7 +600,7 @@ int DoExec11(Socket *sClient, int iMethod, char *szPath, char *szSearch,
 // that methods *ARE* case-sensitive, unlike most of HTTP/1.1.
 //
 
-int CheckMethod(char *szMethod) {
+int CheckMethod(char* szMethod) {
   if (strcmp(szMethod, "GET") == 0) {
     return GET;
   } else if (strcmp(szMethod, "POST") == 0) {
@@ -614,11 +627,11 @@ int CheckMethod(char *szMethod) {
 // specified extension.
 //
 
-char *MakeUnique(char *szDir, char *szExt) {
-  ULONG ulNum = 0;
-  BOOL bNotUnique = TRUE;
-  int iRc;
-  char *szFileName;
+char* MakeUnique(char* szDir, char* szExt) {
+  ULONG ulNum      = 0;
+  BOOL  bNotUnique = TRUE;
+  int   iRc;
+  char* szFileName;
 
   szFileName = new char[PATH_LENGTH];
 
@@ -649,16 +662,16 @@ char *MakeUnique(char *szDir, char *szExt) {
 // Perform a HTTP trace on the request just received.
 //
 
-int DoTrace(Socket *sClient, Headers *hInfo) {
-  ofstream ofOut;
-  char *szName, szBuf[SMALLBUF], *szTmp;
+int DoTrace(Socket* sClient, Headers* hInfo) {
+  ofstream    ofOut;
+  char *      szName, szBuf[SMALLBUF], *szTmp;
   struct stat sBuf;
-  int iRc;
-  BOOL bPersistent = TRUE;
+  int         iRc;
+  BOOL        bPersistent = TRUE;
 
   szName = tmpnam(NULL); // Request temporary filename.
   ofOut.open(szName);
-  if (!ofOut) {
+  if (! ofOut) {
     hInfo->RcvHeaders(sClient);
     bPersistent = hInfo->bPersistent;
     delete hInfo;
@@ -716,8 +729,8 @@ int DoTrace(Socket *sClient, Headers *hInfo) {
 // Figure out the options available for the specified resource.
 //
 
-int DoOptions(Socket *sClient, char *szPath, Headers *hInfo, int iType) {
-  char *szTmp;
+int DoOptions(Socket* sClient, char* szPath, Headers* hInfo, int iType) {
+  char* szTmp;
 
   sClient->Send("HTTP/1.1 200 OK \r\n");
   sClient->Send("Server: ");
@@ -755,13 +768,13 @@ int DoOptions(Socket *sClient, char *szPath, Headers *hInfo, int iType) {
 // Save the entity sent as the specified URI.
 //
 
-int DoPut(Socket *sClient, Headers *hInfo, char *szPath, char *szCgi) {
-  struct stat sBuf;
-  char *szTmp, *szExt, *szLoc, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream ofTmp;
-  int iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, j;
+int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
+  struct stat   sBuf;
+  char *        szTmp, *szExt, *szLoc, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  ofstream      ofTmp;
+  int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, j;
   unsigned long ulRc;
-  BOOL bChunked = FALSE;
+  BOOL          bChunked = FALSE;
 
   // Figure out where to store it.
   if (szPath != NULL) {
@@ -819,21 +832,21 @@ int DoPut(Socket *sClient, Headers *hInfo, char *szPath, char *szCgi) {
 
   if (hInfo->szRange != NULL) // Range not allowed for PUT.
   {
-    SendError(sClient, "Range header not accepted for PUT.", 501, HTTP_1_1,
-              hInfo);
+    SendError(
+        sClient, "Range header not accepted for PUT.", 501, HTTP_1_1, hInfo);
     return 501;
   }
   if (hInfo->szIfModSince != NULL) // If-Modified-Since
   {                                // not allowed for PUT.
     SendError(sClient, "If-Modified-Since header not accepted for PUT.", 501,
-              HTTP_1_1, hInfo);
+        HTTP_1_1, hInfo);
     return 501;
   }
 
   // Now check the If headers.
   iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
-  iIfNone = IfNone(hInfo, sBuf.st_mtime);
+  iIfNone  = IfNone(hInfo, sBuf.st_mtime);
   if ((iIfUnmod == FALSE) || (iIfMatch == FALSE) || (iIfNone == FALSE)) {
     SendError(sClient, "Precondition failed.", 412, HTTP_1_1, hInfo);
     return 412;
@@ -849,7 +862,7 @@ int DoPut(Socket *sClient, Headers *hInfo, char *szPath, char *szCgi) {
   }
   tmpnam(szFile);
   ofTmp.open(szFile, ios::binary);
-  if (!ofTmp) {
+  if (! ofTmp) {
     SendError(sClient, "Local processing error.", 500, HTTP_1_1, hInfo);
     return 500;
   }
@@ -910,11 +923,11 @@ int DoPut(Socket *sClient, Headers *hInfo, char *szPath, char *szCgi) {
 // specified by the client.
 //
 
-int DoDelete(Socket *sClient, char *szPath, char *szCgi, Headers *hInfo) {
+int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
   struct stat sBuf;
-  char *szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
-  ofstream ofTmp;
-  int iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone;
+  char *      szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  ofstream    ofTmp;
+  int         iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone;
 
   iRc = CheckAuth(szPath, hInfo, WRITE_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                     // Send request for credentials.
@@ -961,21 +974,21 @@ int DoDelete(Socket *sClient, char *szPath, char *szCgi, Headers *hInfo) {
 
   if (hInfo->szRange != NULL) // Range not allowed for DELETE.
   {
-    SendError(sClient, "Range header not accepted for DELETE.", 501, HTTP_1_1,
-              hInfo);
+    SendError(
+        sClient, "Range header not accepted for DELETE.", 501, HTTP_1_1, hInfo);
     return 501;
   }
   if (hInfo->szIfModSince != NULL) // If-Modified-Since
   {                                // not allowed for DELETE.
     SendError(sClient, "If-Modified-Since header not accepted for DELETE.", 501,
-              HTTP_1_1, hInfo);
+        HTTP_1_1, hInfo);
     return 501;
   }
 
   // Now check the If headers.
   iIfUnmod = IfUnmodSince(hInfo, sBuf.st_mtime);
   iIfMatch = IfMatch(hInfo, sBuf.st_mtime);
-  iIfNone = IfNone(hInfo, sBuf.st_mtime);
+  iIfNone  = IfNone(hInfo, sBuf.st_mtime);
   if ((iIfUnmod == FALSE) || (iIfMatch == FALSE) || (iIfNone == FALSE)) {
     SendError(sClient, "Precondition failed.", 412, HTTP_1_1, hInfo);
     return 412;
@@ -1027,7 +1040,7 @@ int DoDelete(Socket *sClient, char *szPath, char *szCgi, Headers *hInfo) {
 // given by the client.
 //
 
-int IfModSince(Headers *hInfo, time_t ttMtime) {
+int IfModSince(Headers* hInfo, time_t ttMtime) {
   if (hInfo->szIfModSince != NULL) {
     if ((hInfo->ttIfModSince > 0) && (hInfo->ttIfModSince < ttMtime)) {
       return TRUE;
@@ -1046,7 +1059,7 @@ int IfModSince(Headers *hInfo, time_t ttMtime) {
 // given by the client.
 //
 
-int IfUnmodSince(Headers *hInfo, time_t ttMtime) {
+int IfUnmodSince(Headers* hInfo, time_t ttMtime) {
   if (hInfo->szIfUnmodSince != NULL) {
     if ((hInfo->ttIfUnmodSince > 0) && (hInfo->ttIfUnmodSince > ttMtime)) {
       return TRUE;
@@ -1065,14 +1078,14 @@ int IfUnmodSince(Headers *hInfo, time_t ttMtime) {
 // for a match.
 //
 
-int IfMatch(Headers *hInfo, time_t ttMtime) {
-  int iIfMatch = TRUE, i;
+int IfMatch(Headers* hInfo, time_t ttMtime) {
+  int   iIfMatch = TRUE, i;
   char *szBuf, szEtagStar[] = "*";
 
   // Check to see if any etags match.
   if (hInfo->szIfMatch != NULL) {
     iIfMatch = FALSE; // We fail unless we match.
-    szBuf = new char[SMALLBUF];
+    szBuf    = new char[SMALLBUF];
     sprintf(szBuf, "\"%d\"", ttMtime);
     for (i = 0; hInfo->szIfMatchEtags[i] != NULL; i++) {
       if (strcmp(hInfo->szIfMatchEtags[i], szBuf) == 0) {
@@ -1096,14 +1109,14 @@ int IfMatch(Headers *hInfo, time_t ttMtime) {
 // Check to make sure no etags match the resource.
 //
 
-int IfNone(Headers *hInfo, time_t ttMtime) {
-  int iIfNone = TRUE, i;
+int IfNone(Headers* hInfo, time_t ttMtime) {
+  int   iIfNone = TRUE, i;
   char *szBuf, szEtagStar[] = "*";
 
   // Check to see if any of the If-None-Match etags match
   if (hInfo->szIfNoneMatch != NULL) {
     iIfNone = TRUE; // We're ok unless we match.
-    szBuf = new char[SMALLBUF];
+    szBuf   = new char[SMALLBUF];
     sprintf(szBuf, "\"%d\"", ttMtime);
     for (i = 0; hInfo->szIfNoneMatchEtags[i] != NULL; i++) {
       if (strcmp(hInfo->szIfNoneMatchEtags[i], szBuf) == 0) {
@@ -1127,8 +1140,8 @@ int IfNone(Headers *hInfo, time_t ttMtime) {
 // Find out whether the If-Range tag matches the resource.
 //
 
-int IfRange(Headers *hInfo, time_t ttMtime) {
-  char *szBuf;
+int IfRange(Headers* hInfo, time_t ttMtime) {
+  char*  szBuf;
   time_t ttDate;
 
   // Check the If-Range header. We must have Range also to be valid.
@@ -1160,11 +1173,11 @@ int IfRange(Headers *hInfo, time_t ttMtime) {
 // Send the given byte ranges back to the client.
 //
 
-int SendByteRange(Socket *sClient, Headers *hInfo, char *szPath,
-                  struct stat *sBuf, int iType, int iMethod) {
+int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
+    struct stat* sBuf, int iType, int iMethod) {
   ifstream ifIn;
-  int iBytes, iCount, iLen, i, j;
-  char *szBuf, *szBoundary;
+  int      iBytes, iCount, iLen, i, j;
+  char *   szBuf, *szBoundary;
 
   szBuf = new char[SMALLBUF];
 
@@ -1199,13 +1212,13 @@ int SendByteRange(Socket *sClient, Headers *hInfo, char *szPath,
     szBoundary = new char[70];
     srand(sBuf->st_mtime);
     for (i = 0; i < 68; i++) {
-      j = rand();
+      j             = rand();
       szBoundary[i] = szMime[j % iNumMime];
     }
     szBoundary[69] = NULL;
 
     sprintf(szBuf, "Content-Type: multipart/byteranges; boundary=\"%s\"\r\n",
-            szBoundary);
+        szBoundary);
     sClient->Send(szBuf);
 
     if (iMethod == HEAD) // Don't send an entity.
@@ -1224,11 +1237,11 @@ int SendByteRange(Socket *sClient, Headers *hInfo, char *szPath,
       sprintf(szBuf, "Content-Type: %s\r\n", eExtMap[iType].szType);
       sClient->Send(szBuf); // Now content-type.
       sprintf(szBuf, "Content-Range: bytes %d-%d/%d\r\n\r\n",
-              hInfo->rRanges[i].iStart, hInfo->rRanges[i].iEnd, sBuf->st_size);
+          hInfo->rRanges[i].iStart, hInfo->rRanges[i].iEnd, sBuf->st_size);
       sClient->Send(szBuf); // Now content-range.
 
       ifIn.seekg(hInfo->rRanges[i].iStart, ios::beg);
-      iLen = hInfo->rRanges[i].iEnd - hInfo->rRanges[i].iStart + 1;
+      iLen   = hInfo->rRanges[i].iEnd - hInfo->rRanges[i].iStart + 1;
       iCount = 0;
       // Read the specified number of bytes.
       while (iCount < iLen) {
@@ -1256,10 +1269,10 @@ int SendByteRange(Socket *sClient, Headers *hInfo, char *szPath,
 // Receive the entity using the chunked method.
 //
 
-int GetChunked(Socket *sClient, ofstream &ofOut, Headers *hInfo) {
-  BOOL bNotDone = TRUE;
-  char *szPtr;
-  int iBytes, i, j, l, iFactor;
+int GetChunked(Socket* sClient, ofstream& ofOut, Headers* hInfo) {
+  BOOL  bNotDone = TRUE;
+  char* szPtr;
+  int   iBytes, i, j, l, iFactor;
 
   while (bNotDone == TRUE) {
     sClient->RecvTeol(NO_EOL); // Grab a line. Should have chunk size.
@@ -1274,7 +1287,7 @@ int GetChunked(Socket *sClient, ofstream &ofOut, Headers *hInfo) {
 
     l = strlen(sClient->szOutBuf); // Find last hex digit.
     l--;
-    iBytes = 0;
+    iBytes  = 0;
     iFactor = 1;
     // Convert to decimal bytes.
     while (l >= 0) {
@@ -1306,26 +1319,26 @@ int GetChunked(Socket *sClient, ofstream &ofOut, Headers *hInfo) {
 
 int Hex2Dec(char c) {
   switch (c) {
-  case 'A':
-  case 'a':
-    return 10;
-  case 'B':
-  case 'b':
-    return 11;
-  case 'C':
-  case 'c':
-    return 12;
-  case 'D':
-  case 'd':
-    return 13;
-  case 'E':
-  case 'e':
-    return 14;
-  case 'F':
-  case 'f':
-    return 15;
-  default:
-    return (c - 48);
+    case 'A':
+    case 'a':
+      return 10;
+    case 'B':
+    case 'b':
+      return 11;
+    case 'C':
+    case 'c':
+      return 12;
+    case 'D':
+    case 'd':
+      return 13;
+    case 'E':
+    case 'e':
+      return 14;
+    case 'F':
+    case 'f':
+      return 15;
+    default:
+      return (c - 48);
   }
 }
 

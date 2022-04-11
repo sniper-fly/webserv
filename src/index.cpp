@@ -12,14 +12,14 @@
 // for the WWW server.
 //
 
-#include <fstream.h>
-#include <iostream.h>
+#include <fstream>
+#include <iostream>
 #include <process.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys\stat.h>
-#include <sys\types.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 
 
@@ -50,14 +50,14 @@
 // ISINDEX tag for a document.
 //
 
-int Index(char *szDoc, char *szSearch, char *szFile, char *szLink) {
-  char *szBuf, *szTerms[5];
+int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
+  char *   szBuf, *szTerms[5];
   ifstream ifDoc;
   ofstream ofOut;
-  int i, iCounts[5];
+  int      i, iCounts[5];
 
   ifDoc.open(szDoc);
-  if (!ifDoc) // Failure to find document.
+  if (! ifDoc) // Failure to find document.
   {
     return 1;
   }
@@ -85,7 +85,7 @@ int Index(char *szDoc, char *szSearch, char *szFile, char *szLink) {
 
   // Search the document for the terms.
   szBuf = new char[SMALLBUF];
-  while (!ifDoc.eof()) {
+  while (! ifDoc.eof()) {
     ifDoc.getline(szBuf, SMALLBUF, '\n');
     strlwr(szBuf);
     for (i = 0; i < 5; i++) {
@@ -104,7 +104,7 @@ int Index(char *szDoc, char *szSearch, char *szFile, char *szLink) {
   // Now create a document with the counts in it.
   tmpnam(szFile);
   ofOut.open(szFile);
-  if (!ofOut) // Could not produce a temporary file.
+  if (! ofOut) // Could not produce a temporary file.
   {
     return 1;
   }
