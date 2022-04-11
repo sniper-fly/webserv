@@ -57,6 +57,9 @@ char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
 //
 
 int ExecCgi(Cgi* cParms) {
+  return 0;
+
+  /*
   int           pIn[2], pOut[2], iNum, iRc;
   FILE *        fpin, *fpout;
   FILE*         fpPost;
@@ -172,6 +175,7 @@ int ExecCgi(Cgi* cParms) {
   sem_post(g_cgiSem);
 
   return (0);
+  */
 }
 
 // ------------------------------------------------------------------
