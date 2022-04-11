@@ -7,6 +7,11 @@
 // Prepared for the book "Illustrated Guide to HTTP"
 //
 
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include "socket.hpp"
 
 // ------------------------------------------------------------------
@@ -84,7 +89,8 @@ Socket* Socket::Accept() {
   sSock = new Socket();
 
   bzero(&siThem, iLen);
-  sSock->iSock = accept(iSock, (struct sockaddr*)&(sSock->siThem), &iLen);
+  sSock->iSock =
+      accept(iSock, (struct sockaddr*)&(sSock->siThem), (socklen_t*)&iLen);
   if (sSock->iSock < 0) {
     iErr = sSock->iSock;
     delete sSock;
@@ -240,7 +246,6 @@ int Socket::Recv(int iBytes) {
 //
 
 int Socket::RecvTeol(int iToast) {
-  int i;
   int iState = 1, idx = 0;
 #ifdef __OS2__
   int fdsSocks[1];
