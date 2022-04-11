@@ -21,6 +21,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "signal.hpp"
 
 #ifdef __IBMCPP__
 #include <builtin.h>
@@ -115,10 +116,11 @@ int main(int argc, char* argv[]) {
   std::cerr << "3wd> Starting server on port number " << iPort << "."
             << std::endl;
 
-  signal(SIGABRT, (_SigFunc)Stop);
-  signal(SIGBREAK, (_SigFunc)Stop);
-  signal(SIGINT, (_SigFunc)Stop);
-  signal(SIGTERM, (_SigFunc)Stop);
+  //   signal(SIGABRT, (_SigFunc)Stop);
+  //   signal(SIGBREAK, (_SigFunc)Stop);
+  //   signal(SIGINT, (_SigFunc)Stop);
+  //   signal(SIGTERM, (_SigFunc)Stop);
+  set_signal_handler(SIGINT);
 
   Server();
 
