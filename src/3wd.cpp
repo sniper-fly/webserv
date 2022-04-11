@@ -173,9 +173,8 @@ void W3Conn(void* arg) {
   // Parse the components of the request
   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
 
-  if (ft::stricmp(szVer, "http/1.0") == 0) {
-    DoHttp10(sClient, szRequest, szUri);
-  } else if (ft::stricmp(szVer, "http/1.1") == 0) {
+  if (ft::stricmp(szVer, "http/1.1") == 0)
+  { // TODO 毎回 http 1.1かどうかcheckしない？
     iRc = DoHttp11(sClient, szRequest, szUri);
     while (iRc == true) // Do persistent connections.
     {
@@ -185,7 +184,7 @@ void W3Conn(void* arg) {
     }
   } else // Treat this request as a HTTP/0.9 request.
   {
-    DoHttp09(sClient, szRequest, szUri);
+    std::cerr << "unknown http version" << std::endl; // TODO
   }
   delete[] szRequest;
   delete[] szUri;
