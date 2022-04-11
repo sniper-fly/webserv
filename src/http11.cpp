@@ -78,8 +78,8 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   if (iRc == false)                    // Bad request.
   {
     iRsp = SendError(sClient,
-        (char*)"Missing Host header or incompatible headers detected.", 400, (char*)HTTP_1_1,
-        hInfo);
+        (char*)"Missing Host header or incompatible headers detected.", 400,
+        (char*)HTTP_1_1, hInfo);
     DeHexify(szReq);
     WriteToLog(sClient, szReq, iRsp, hInfo->ulContentLength);
     delete[] szReq;

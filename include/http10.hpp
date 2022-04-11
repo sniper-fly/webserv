@@ -17,13 +17,13 @@
 // Function Prototypes.
 //
 
-void DoHttp10(Socket *, char *, char *);
-char * ResolvePath(char *);
-int FindType(char *);
-char * ResolveExec(char *);
-int DoPath(Socket *, char *, char *, char *, Headers *, char *);
-int DoExec(Socket *, int, char *, Headers *);
-int SendError(Socket *, char *, int, char *, Headers *);
+// void DoHttp10(Socket *, char *, char *);
+char* ResolvePath(char*);
+int   FindType(char*);
+char* ResolveExec(char*);
+// int DoPath(Socket *, char *, char *, char *, Headers *, char *);
+// int DoExec(Socket *, int, char *, Headers *);
+int SendError(Socket*, char*, int, char*, Headers*);
 
 // ------------------------------------------------------------------
 
