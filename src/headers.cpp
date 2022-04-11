@@ -24,6 +24,7 @@
 #include "scodes.hpp"
 #include "http10.hpp"
 #include "util.hpp"
+#include "ftutil.hpp"
 #include "headers.hpp"
 
 // ------------------------------------------------------------------
@@ -43,7 +44,7 @@ int Headers::RcvHeaders(Socket* sClient) {
     iRc = sClient->RecvTeol(NO_EOL); // Get the message.
     if (iRc < 0)
       break;
-    if (sClient->szOutBuf[0] == NULL)
+    if (sClient->szOutBuf[0] == '\0')
       break;
 
     szTmp = sClient->szOutBuf;
@@ -234,7 +235,7 @@ int Headers::RcvHeaders(Socket* sClient) {
           break;
         }
     }
-  } while (sClient->szOutBuf[0] != NULL);
+  } while (sClient->szOutBuf[0] != '\0');
 
   delete[] szHdr;
 
@@ -298,7 +299,7 @@ char** Headers::Etag(char* szTags) {
   // Find out how many tags are expected.
   i     = 0;
   szPtr = szTags;
-  while (*szPtr != NULL) {
+  while (*szPtr != '\0') {
     if (*szPtr == ',')
       i++;
     szPtr++;
@@ -308,16 +309,16 @@ char** Headers::Etag(char* szTags) {
   i += 2;
   szEtags = new char*[i];
   for (j = 0; j < i; j++) {
-    szEtags[j] = '\0';
+    szEtags[j] = NULL;
   }
 
   j     = 0;
   szPtr = szTags;
-  while (*szPtr != NULL) {
-    while ((isspace(*szPtr)) && (*szPtr != NULL)) {
+  while (*szPtr != '\0') {
+    while ((isspace(*szPtr)) && (*szPtr != '\0')) {
       szPtr++;
     }
-    if (*szPtr == NULL)
+    if (*szPtr == '\0')
       continue; // Escape.
     szStart = szPtr;
     if (*szPtr == 'W')
@@ -327,18 +328,18 @@ char** Headers::Etag(char* szTags) {
       break;
     }
     szPtr++; // Advance past the <"> mark.
-    while ((*szPtr != '"') && (*szPtr != NULL)) {
+    while ((*szPtr != '"') && (*szPtr != '\0')) {
       szPtr++; // Look for end of etag.
     }
-    if (*szPtr == NULL)
+    if (*szPtr == '\0')
       continue;                   // Escape.
     szPtr++;                      // Past the ending <"> mark.
     cTmp       = *szPtr;          // Save character temporarily.
-    *szPtr     = NULL;            // Mark end of string of current etag.
+    *szPtr     = '\0';            // Mark end of string of current etag.
     szEtags[j] = strdup(szStart); // Save it.
     j++;                          // Count it.
     *szPtr = cTmp;                // Restore character.
-    while ((*szPtr != ',') && (*szPtr != NULL)) {
+    while ((*szPtr != ',') && (*szPtr != '\0')) {
       szPtr++; // Advance to start of next etag or end of line.
     }
     if (*szPtr == ',')
@@ -556,7 +557,7 @@ Headers::~Headers() {
 
 int Headers::FindRanges(int iSize) {
   char *szBuf, *szTmp;
-  int   i, iNum, iLength, iIdx, bError;
+  int   i, iNum, iIdx, bError;
 
   if (szRange == NULL)
     return 1; // Nothing to do.
@@ -564,7 +565,7 @@ int Headers::FindRanges(int iSize) {
   bError = false;
   szTmp  = szRange;
   iNum   = 1;
-  while (*szTmp != NULL) // Count the number of ranges.
+  while (*szTmp != '\0') // Count the number of ranges.
   {
     if (*szTmp == ',')
       iNum++;
@@ -578,7 +579,7 @@ int Headers::FindRanges(int iSize) {
   iIdx  = 0;
   szTmp = strchr(szRange, '=');
   szTmp++;
-  while (*szTmp != NULL) {
+  while (*szTmp != '\0') {
     if (isdigit(*szTmp)) // Found range start.
     {
       i = 0;
@@ -588,7 +589,7 @@ int Headers::FindRanges(int iSize) {
         i++;
         szTmp++;
       }
-      szBuf[i]             = NULL; // Mark NULL and grab the start.
+      szBuf[i]             = '\0'; // Mark NULL and grab the start.
       rRanges[iIdx].iStart = atoi(szBuf);
 
       if (*szTmp != '-')
@@ -603,7 +604,7 @@ int Headers::FindRanges(int iSize) {
           i++;
           szTmp++;
         }
-        szBuf[i]           = NULL; // Mark NULL and grab the end.
+        szBuf[i]           = '\0'; // Mark NULL and grab the end.
         rRanges[iIdx].iEnd = atoi(szBuf);
       } else // Use end of file as range end.
       {
