@@ -20,7 +20,7 @@ namespace ft
     return ((*(unsigned char*)s1 < *(unsigned char*)s2) ? -1 : +1);
   }
 
-  void copyFile(std::string from, std::string to) {
+  void copyFile(const char* from, const char* to) {
     std::ifstream src(from, std::ios::binary);
     std::ofstream dst(to, std::ios::binary);
     dst << src.rdbuf();
