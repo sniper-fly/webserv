@@ -35,6 +35,10 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <unistd.h>
 
 #include "defines.hpp"
 
@@ -64,7 +68,7 @@ class Socket
   };
   ~Socket() {
     if (iSock > -1)
-      soclose(iSock);
+      close(iSock);
     delete[] szOutBuf;
     delete[] szBuf1;
     delete[] szBuf2;
@@ -128,7 +132,7 @@ class Socket
     szPeerIp   = NULL;
     szPeerName = NULL;
     ulTimeout  = 5 * 60; // 5 minutes default.
-    iErr       = soclose(iSock);
+    iErr       = close(iSock);
     iSock      = -1;
     return iErr;
   };
