@@ -35,6 +35,7 @@
 #include "http10.hpp"
 #include "http11.hpp"
 #include "util.hpp"
+#include "ftutil.hpp"
 #include "cgi.hpp"
 
 // ------------------------------------------------------------------
@@ -59,10 +60,8 @@ sem_t* g_logSem;
 sem_t* g_cgiSem;
 
 int main(int argc, char* argv[]) {
-  int  iPort = WWW_PORT;
-  int  i, iRc;
-  char szCmd[512];
-  bool bNotDone = true;
+  int iPort = WWW_PORT;
+  int i, iRc;
 
   // init
   sem_unlink("/webserv_log");
@@ -70,7 +69,7 @@ int main(int argc, char* argv[]) {
   g_logSem = sem_open("/webserv_log", O_CREAT, 0600, 1);
   g_cgiSem = sem_open("/webserv_cgi", O_CREAT, 0600, 1);
 
-  iRc = ReadConfig("3wd.cf");
+  iRc = ReadConfig((char*)"3wd.cf");
   if (iRc) {
     std::cerr << "Error!" << std::endl;
     std::cerr << "Error reading configuration file. Exiting." << std::endl;
@@ -104,26 +103,8 @@ int main(int argc, char* argv[]) {
 
   Server();
 
-#ifdef __WINDOWS__
-  WSACleanup(); // Cleanup for windows sockets.
-#endif
-
   // Now we're done
   return 0;
-}
-
-// ------------------------------------------------------------------
-//
-// Stop
-//
-// Handle the signals and stop the server.
-
-void Stop(int iSig) {
-#ifdef __WINDOWS__
-  WSACleanup(); // Cleanup for windows sockets.
-#endif
-
-  exit(0);
 }
 
 // ------------------------------------------------------------------
@@ -242,7 +223,7 @@ void DoHttp09(Socket* sClient, char* szRequest, char* szUri) {
   // Check for a query in the URI.
   if ((szTmp = strchr(szUri, '?')) != NULL) {
     // Break up the URI into document and and search parameters.
-    *szTmp = NULL; // Append NULL to shorter URI.
+    *szTmp = '\0'; // Append NULL to shorter URI.
     szTmp++;       // Let szTmp point to the query terms.
     szSearch = strdup(szTmp);
   }
@@ -307,8 +288,6 @@ void DoHttp09(Socket* sClient, char* szRequest, char* szUri) {
 //
 
 void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
-  int           iRc;
-  struct stat   sBuf;
   char          szTmp[512];
   struct tm*    tmPtr;
   time_t        ttLocal;
