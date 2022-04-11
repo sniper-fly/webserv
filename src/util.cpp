@@ -77,29 +77,29 @@ time_t ConvertDate(char* szDate) {
   }
 
   // Now calculate the number of seconds since 1970.
-  if (stricmp(szMonth, "jan") == 0)
+  if (ft::stricmp(szMonth, "jan") == 0)
     tmData.tm_mon = 0;
-  else if (stricmp(szMonth, "feb") == 0)
+  else if (ft::stricmp(szMonth, "feb") == 0)
     tmData.tm_mon = 1;
-  else if (stricmp(szMonth, "mar") == 0)
+  else if (ft::stricmp(szMonth, "mar") == 0)
     tmData.tm_mon = 2;
-  else if (stricmp(szMonth, "apr") == 0)
+  else if (ft::stricmp(szMonth, "apr") == 0)
     tmData.tm_mon = 3;
-  else if (stricmp(szMonth, "may") == 0)
+  else if (ft::stricmp(szMonth, "may") == 0)
     tmData.tm_mon = 4;
-  else if (stricmp(szMonth, "jun") == 0)
+  else if (ft::stricmp(szMonth, "jun") == 0)
     tmData.tm_mon = 5;
-  else if (stricmp(szMonth, "jul") == 0)
+  else if (ft::stricmp(szMonth, "jul") == 0)
     tmData.tm_mon = 6;
-  else if (stricmp(szMonth, "aug") == 0)
+  else if (ft::stricmp(szMonth, "aug") == 0)
     tmData.tm_mon = 7;
-  else if (stricmp(szMonth, "sep") == 0)
+  else if (ft::stricmp(szMonth, "sep") == 0)
     tmData.tm_mon = 8;
-  else if (stricmp(szMonth, "oct") == 0)
+  else if (ft::stricmp(szMonth, "oct") == 0)
     tmData.tm_mon = 9;
-  else if (stricmp(szMonth, "nov") == 0)
+  else if (ft::stricmp(szMonth, "nov") == 0)
     tmData.tm_mon = 10;
-  else if (stricmp(szMonth, "dec") == 0)
+  else if (ft::stricmp(szMonth, "dec") == 0)
     tmData.tm_mon = 11;
 
   tmData.tm_isdst = 0; // There should be no daylight savings time factor.
@@ -230,7 +230,7 @@ int CheckFile(char* szFile, Headers* hInfo) {
   }
   ifIn.close();
 
-  if (stricmp(szType, "basic") == 0) // Check basic authentication.
+  if (ft::stricmp(szType, "basic") == 0) // Check basic authentication.
   {
     if (hInfo->szAuth == NULL) // Ask for credentials
     {
@@ -305,8 +305,9 @@ int BasicCheck(char* szFile, Headers* hInfo) {
       continue;
     *szPass = NULL;
     szPass++;
-    if ((stricmp(szClientUser, szUser) == 0) &&
-        (strcmp(szClientPass, szPass) == 0)) {
+    if ((ft::stricmp(szClientUser, szUser) == 0) &&
+        (strcmp(szClientPass, szPass) == 0))
+    {
       hInfo->szAuthType   = strdup("basic");
       hInfo->szRemoteUser = strdup(szUser);
       bFound              = true;

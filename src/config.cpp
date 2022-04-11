@@ -101,7 +101,7 @@ int ReadConfig(char* szConfigName) {
 
     sscanf(szBuf, "%s %s %s", szDirective, szVal1, szVal2); // Parse the line.
 
-    if (stricmp(szDirective, "ServerRoot") == 0) {
+    if (ft::stricmp(szDirective, "ServerRoot") == 0) {
       if (szServerRoot)
         delete[] szServerRoot;
       Convert(szVal1);
@@ -111,27 +111,27 @@ int ReadConfig(char* szConfigName) {
       } else {
         szServerRoot = strdup(szVal1);
       }
-    } else if (stricmp(szDirective, "HostName") == 0) {
+    } else if (ft::stricmp(szDirective, "HostName") == 0) {
       if (szHostName)
         delete[] szHostName;
       szHostName = strdup(szVal1);
-    } else if (stricmp(szDirective, "GMTOffset") == 0) {
+    } else if (ft::stricmp(szDirective, "GMTOffset") == 0) {
       lGmtOffset = 60 * (atol(szVal1) / 100); // Number of hours in minutes
       lGmtOffset += (atol(szVal1) % 100);     // Number of minutes specified
       lGmtOffset *= 60;                       // Convert minutes to seconds
-    } else if (stricmp(szDirective, "Welcome") == 0) {
+    } else if (ft::stricmp(szDirective, "Welcome") == 0) {
       if (szWelcome)
         delete[] szWelcome;
       szWelcome = strdup(szVal1);
-    } else if (stricmp(szDirective, "AccessLog") == 0) {
+    } else if (ft::stricmp(szDirective, "AccessLog") == 0) {
       if (szAccessLog)
         delete[] szAccessLog;
       szAccessLog = strdup(szVal1);
-    } else if (stricmp(szDirective, "ErrorLog") == 0) {
+    } else if (ft::stricmp(szDirective, "ErrorLog") == 0) {
       if (szErrorLog)
         delete[] szErrorLog;
       szErrorLog = strdup(szVal1);
-    } else if (stricmp(szDirective, "DeleteDir") == 0) {
+    } else if (ft::stricmp(szDirective, "DeleteDir") == 0) {
       if (szDeleteDir)
         delete[] szDeleteDir;
       Convert(szVal1);
@@ -141,25 +141,25 @@ int ReadConfig(char* szConfigName) {
       } else {
         szDeleteDir = strdup(szVal1);
       }
-    } else if (stricmp(szDirective, "Port") == 0) {
+    } else if (ft::stricmp(szDirective, "Port") == 0) {
       sPort = (short)atoi(szVal1);
-    } else if (stricmp(szDirective, "DNSLookup") == 0) {
-      if (stricmp(szVal1, "Off") == 0) {
+    } else if (ft::stricmp(szDirective, "DNSLookup") == 0) {
+      if (ft::stricmp(szVal1, "Off") == 0) {
         bDnsLookup = false;
       }
-    } else if (stricmp(szDirective, "LogTime") == 0) {
-      if (stricmp(szVal1, "GMT") == 0) {
+    } else if (ft::stricmp(szDirective, "LogTime") == 0) {
+      if (ft::stricmp(szVal1, "GMT") == 0) {
         bGmtTime = true;
       }
-    } else if (stricmp(szDirective, "ReadAccessName") == 0) {
+    } else if (ft::stricmp(szDirective, "ReadAccessName") == 0) {
       if (szReadAccess)
         delete[] szReadAccess;
       szReadAccess = strdup(szVal1);
-    } else if (stricmp(szDirective, "WriteAccessName") == 0) {
+    } else if (ft::stricmp(szDirective, "WriteAccessName") == 0) {
       if (szWriteAccess)
         delete[] szWriteAccess;
       szWriteAccess = strdup(szVal1);
-    } else if (stricmp(szDirective, "PathAlias") == 0) {
+    } else if (ft::stricmp(szDirective, "PathAlias") == 0) {
       if (iNum1 == MAX_ALIASES) {
         std::cerr << "Exceeded maximum path aliases. " << szVal1 << " ignored."
                   << std::endl;
@@ -178,7 +178,7 @@ int ReadConfig(char* szConfigName) {
       }
 
       iNum1++;
-    } else if (stricmp(szDirective, "ExecAlias") == 0) {
+    } else if (ft::stricmp(szDirective, "ExecAlias") == 0) {
       if (iNum2 == MAX_ALIASES) {
         std::cerr << "Exceeded maximum exec aliases. " << szVal1 << " ignored."
                   << std::endl;
@@ -197,7 +197,7 @@ int ReadConfig(char* szConfigName) {
       }
 
       iNum2++;
-    } else if (stricmp(szDirective, "ExtType") == 0) {
+    } else if (ft::stricmp(szDirective, "ExtType") == 0) {
       if (iNum3 == MAX_EXTENSIONS) {
         std::cerr << "Exceeded maximum extensions. " << szVal1 << " ignored."
                   << std::endl;

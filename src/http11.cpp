@@ -479,7 +479,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     // Grab the posted data.
     cParms->szOutput = NULL;
     tmpnam(szFile);
-    strlwr(hInfo->szContentType);
+    ft::strlwr(hInfo->szContentType);
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
     {
@@ -527,7 +527,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     }
     *szVal = NULL;
     szVal++;
-    strlwr(szBuf);
+    ft::strlwr(szBuf);
     // Look for and allow proper response headers.
     if (strcmp(szBuf, "cache-control") == 0) {
       sClient->Send("Cache-Control: ");
@@ -686,9 +686,9 @@ int DoTrace(Socket* sClient, Headers* hInfo) {
     if (szTmp != NULL) {
       *szTmp = NULL;
       szTmp++;
-      if (stricmp(sClient->szOutBuf, "connection") == 0) {
+      if (ft::stricmp(sClient->szOutBuf, "connection") == 0) {
         sscanf(szTmp, "%s", szBuf);
-        if (stricmp(szBuf, "close") == 0) {
+        if (ft::stricmp(szBuf, "close") == 0) {
           bPersistent = false;
         }
       }

@@ -210,9 +210,9 @@ void W3Conn(void* arg) {
   // Parse the components of the request
   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
 
-  if (stricmp(szVer, "http/1.0") == 0) {
+  if (ft::stricmp(szVer, "http/1.0") == 0) {
     DoHttp10(sClient, szRequest, szUri);
-  } else if (stricmp(szVer, "http/1.1") == 0) {
+  } else if (ft::stricmp(szVer, "http/1.1") == 0) {
     iRc = DoHttp11(sClient, szRequest, szUri);
     while (iRc == true) // Do persistent connections.
     {

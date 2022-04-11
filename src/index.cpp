@@ -71,7 +71,7 @@ int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
   DeHexify(szSearch);
 
   // Convert to lowercase for search.
-  strlwr(szSearch);
+  ft::strlwr(szSearch);
   // Accept up to 5 search terms.
   szTerms[0] = strtok(szSearch, " ");
   szTerms[1] = strtok(NULL, " ");
@@ -86,7 +86,7 @@ int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
   szBuf = new char[SMALLBUF];
   while (! ifDoc.eof()) {
     ifDoc.getline(szBuf, SMALLBUF, '\n');
-    strlwr(szBuf);
+    ft::strlwr(szBuf);
     for (i = 0; i < 5; i++) {
       if (szTerms[i]) // If not NULL.
       {

@@ -68,8 +68,8 @@ int Headers::RcvHeaders(Socket* sClient) {
         i++;               // Advance.
         szTmp++;
       }
-      szHdr[i] = NULL; // Properly end string.
-      strlwr(szHdr);   // Lowercase only.
+      szHdr[i] = NULL;   // Properly end string.
+      ft::strlwr(szHdr); // Lowercase only.
     }
     szTmp++; // Go past the ':' or ' '.
     while ((*szTmp == ' ') && (*szTmp)) {
@@ -128,7 +128,7 @@ int Headers::RcvHeaders(Socket* sClient) {
             if (szConnection)
               delete[] szConnection;
             szConnection = strdup(szTmp);
-            if (stricmp(szConnection, "close") == 0) {
+            if (ft::stricmp(szConnection, "close") == 0) {
               bPersistent = false;
             }
           } else if (strcmp(szHdr, "content-length") == 0) {
@@ -226,7 +226,7 @@ int Headers::RcvHeaders(Socket* sClient) {
             if (szTransferEncoding)
               delete[] szTransferEncoding;
             szTransferEncoding = strdup(szTmp);
-            if (stricmp(szTransferEncoding, "chunked") == 0) {
+            if (ft::stricmp(szTransferEncoding, "chunked") == 0) {
               bChunked = true;
             }
           }

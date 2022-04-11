@@ -2,7 +2,7 @@
 
 namespace ft
 {
-  char* strlwr(char* str) {
+  char* ft::strlwr(char* str) {
     int i = 0;
     while (str[i]) {
       str[i] = tolower(str[i]);
@@ -11,7 +11,7 @@ namespace ft
     return str;
   }
 
-  int stricmp(const char* s1, const char* s2) {
+  int ft::stricmp(const char* s1, const char* s2) {
     for (; tolower(*s1) == tolower(*s2); ++s1, ++s2)
       if (*s1 == '\0')
         return 0;

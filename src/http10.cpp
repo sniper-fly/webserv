@@ -335,7 +335,7 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
     // Grab the posted data.
     cParms->szOutput = NULL;
     tmpnam(szFile);
-    strlwr(hInfo->szContentType);
+    ft::strlwr(hInfo->szContentType);
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
     {
@@ -384,7 +384,7 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
     }
     *szVal = NULL;
     szVal++;
-    strlwr(szBuf);
+    ft::strlwr(szBuf);
     // Look for and allow proper response headers.
     if (strcmp(szBuf, "content-type") == 0) {
       sClient->Send("Content-Type: ");
@@ -459,7 +459,7 @@ int FindType(char* szPath) {
   szTmp++; // Advance past the '.' or '/'.
 
   for (i = 0; i < iNumTypes; i++) {
-    if (stricmp(eExtMap[i].szExt, szTmp) == 0) {
+    if (ft::stricmp(eExtMap[i].szExt, szTmp) == 0) {
       return i;
     }
   }
@@ -506,7 +506,7 @@ char* ResolvePath(char* szUri) {
   // Compare it to our list of aliases.
   for (i = 0; i < iNumPathAliases; i++) {
     // Case insensitive comparison.
-    if (stricmp(szRoot, pAliasPath[i].szAlias) == 0) {
+    if (ft::stricmp(szRoot, pAliasPath[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasPath[i].szTrue, szRest);
       bFound = true;
@@ -562,7 +562,7 @@ char* ResolveExec(char* szUri) {
 
   // Compare to the list of exec path aliases.
   for (i = 0; i < iNumExecAliases; i++) {
-    if (stricmp(szRoot, pAliasExec[i].szAlias) == 0) {
+    if (ft::stricmp(szRoot, pAliasExec[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasExec[i].szTrue, szRest);
       bFound = true;
