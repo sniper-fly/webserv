@@ -144,7 +144,7 @@ int Socket::SendBinary(char* szFileName) {
   std::ifstream ifIn;
   char*         szBuf;
 
-  ifIn.open(szFileName, ios::binary);
+  ifIn.open(szFileName, std::ios::binary);
   if (! ifIn) {
     return -1;
   }

@@ -356,7 +356,7 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
       }
     } else // Binary data.
     {
-      ofOut.open(szFile, ios::bin); // Open in binary mode.
+      ofOut.open(szFile, std::ios::bin); // Open in binary mode.
       iCount = 0;
       while (iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
@@ -415,8 +415,8 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
   if (iMethod != HEAD) // Only send the entity if not HEAD.
   {
     hInfo->ulContentLength = sBuf.st_size - iCount;
-    ifIn.open(cParms->szOutput, ios::bin);
-    ifIn.seekg(iCount, ios::beg);
+    ifIn.open(cParms->szOutput, std::ios::bin);
+    ifIn.seekg(iCount, std::ios::beg);
     while (! ifIn.eof()) {
       ifIn.read(szBuf, SMALLBUF);
       i = ifIn.gcount();

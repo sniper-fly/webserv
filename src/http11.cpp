@@ -43,6 +43,7 @@
 #include "scodes.hpp"
 #include "socket.hpp"
 #include "util.hpp"
+#include "ftutil.hpp"
 
 
 // ------------------------------------------------------------------
@@ -499,7 +500,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       }
     } else // Binary data.
     {
-      ofOut.open(szFile, ios::bin); // Open in binary mode.
+      ofOut.open(szFile, std::ios::bin); // Open in binary mode.
       iCount = 0;
       while (iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
@@ -570,8 +571,8 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   if (iMethod != HEAD) // Only send the entity if not HEAD.
   {
     hInfo->ulContentLength = sBuf.st_size - iCount;
-    ifIn.open(cParms->szOutput, ios::bin);
-    ifIn.seekg(iCount, ios::beg);
+    ifIn.open(cParms->szOutput, std::ios::bin);
+    ifIn.seekg(iCount, std::ios::beg);
     while (! ifIn.eof()) {
       ifIn.read(szBuf, SMALLBUF);
       i = ifIn.gcount();
@@ -861,7 +862,7 @@ int DoPut(Socket* sClient, Headers* hInfo, char* szPath, char* szCgi) {
     return 411;
   }
   tmpnam(szFile);
-  ofTmp.open(szFile, ios::binary);
+  ofTmp.open(szFile, std::ios::binary);
   if (! ofTmp) {
     SendError(sClient, "Local processing error.", 500, HTTP_1_1, hInfo);
     return 500;
@@ -1197,8 +1198,8 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
       return 0;
     }
 
-    ifIn.open(szPath, ios::binary); // Open the file, binary mode.
-    ifIn.seekg(hInfo->rRanges[0].iStart, ios::beg);
+    ifIn.open(szPath, std::ios::binary); // Open the file, binary mode.
+    ifIn.seekg(hInfo->rRanges[0].iStart, std::ios::beg);
     iCount = 0;
     while (iCount < iLen) {
       ifIn.read(szBuf, (SMALLBUF < iLen - iCount ? SMALLBUF : iLen - iCount));
@@ -1228,7 +1229,7 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
       return 0;
     }
 
-    ifIn.open(szPath, ios::binary); // Open the file, binary mode.
+    ifIn.open(szPath, std::ios::binary); // Open the file, binary mode.
 
     for (i = 0; i < hInfo->iRangeNum; i++) {
       sClient->Send("\r\n--"); // The boundary marker first.
@@ -1240,7 +1241,7 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
           hInfo->rRanges[i].iStart, hInfo->rRanges[i].iEnd, sBuf->st_size);
       sClient->Send(szBuf); // Now content-range.
 
-      ifIn.seekg(hInfo->rRanges[i].iStart, ios::beg);
+      ifIn.seekg(hInfo->rRanges[i].iStart, std::ios::beg);
       iLen   = hInfo->rRanges[i].iEnd - hInfo->rRanges[i].iStart + 1;
       iCount = 0;
       // Read the specified number of bytes.

@@ -162,7 +162,7 @@ int ExecCgi(Cgi* cParms) {
 
   cParms->szOutput = new char[L_tmpnam]; // Create a temporary file for
   tmpnam(cParms->szOutput);              // the output.
-  ofOut.open(cParms->szOutput, ios::bin);
+  ofOut.open(cParms->szOutput, std::ios::bin);
   // Grab all of the output from the child.
   while ((iNum = fread(szBuf, sizeof(char), SMALLBUF, fpin)) != 0) {
     ofOut.write(szBuf, iNum);

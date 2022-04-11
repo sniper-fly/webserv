@@ -351,7 +351,7 @@ void WriteToLog(Socket* sClient, char* szReq, int iCode, long lBytes) {
     Sleep(1); // Sleep, not spin.
   }
 
-  ofLog.open(szAccessLog, ios::app); // Open log file for appending.
+  ofLog.open(szAccessLog, std::ios::app); // Open log file for appending.
   if (bDnsLookup == true) {
     ofLog << sClient->szPeerName << " - - [" << szTmp << "] \"" << szReq
           << "\" " << iCode << " " << lBytes << std::endl;
