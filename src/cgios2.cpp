@@ -141,7 +141,7 @@ int ExecCgi(Cgi* cParms) {
   }
 
   szArgs[0] = cParms->szProg; // The program to run.
-  szArgs[1] = NULL;
+  szArgs[1] = '\0';
   // Start it.
   _spawnvpe(P_NOWAIT, cParms->szProg, szArgs, szEnvs);
 

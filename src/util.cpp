@@ -152,7 +152,7 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
   // Look for the access filename.
   while (bNotFound) {
     while ((l > 0) && (szTmpPath[l] != '/')) {
-      szTmpPath[l] = NULL;
+      szTmpPath[l] = '\0';
       l--;
     }
 

@@ -56,7 +56,7 @@ int Headers::RcvHeaders(Socket* sClient) {
         i++;               // Advance.
         szTmp++;
       }
-      szHdr[i] = NULL;   // Properly end string.
+      szHdr[i] = '\0';   // Properly end string.
       ft::strlwr(szHdr); // Lowercase only.
     }
     szTmp++; // Go past the ':' or ' '.
@@ -308,7 +308,7 @@ char** Headers::Etag(char* szTags) {
   i += 2;
   szEtags = new char*[i];
   for (j = 0; j < i; j++) {
-    szEtags[j] = NULL;
+    szEtags[j] = '\0';
   }
 
   j     = 0;
@@ -622,7 +622,7 @@ int Headers::FindRanges(int iSize) {
         i++;
         szTmp++;
       }
-      szBuf[i] = NULL;
+      szBuf[i] = '\0';
       i        = atoi(szBuf);
       // The start will be i bytes from the end of the file.
       rRanges[iIdx].iStart = iSize - i - 1;

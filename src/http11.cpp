@@ -484,7 +484,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
         // Remove the end of line.
         while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
         {
-          sClient->szOutBuf[i] = NULL;
+          sClient->szOutBuf[i] = '\0';
           i--;
         }
         ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
@@ -1211,7 +1211,7 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
       j             = rand();
       szBoundary[i] = szMime[j % iNumMime];
     }
-    szBoundary[69] = NULL;
+    szBoundary[69] = '\0';
 
     sprintf(szBuf, "Content-Type: multipart/byteranges; boundary=\"%s\"\r\n",
         szBoundary);

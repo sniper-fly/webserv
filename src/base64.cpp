@@ -83,7 +83,7 @@ char* ToB64(char* szStr) {
         break;
       }
   }
-  szEnc[j + 4] = NULL;
+  szEnc[j + 4] = '\0';
   return (szEnc);
 }
 
@@ -115,7 +115,7 @@ char* FromB64(char* szStr) {
     j += 3;
   }
 
-  szDecode[j] = NULL;
+  szDecode[j] = '\0';
   return (szDecode);
 }
 

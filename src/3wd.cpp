@@ -227,7 +227,7 @@ void DoHttp09(Socket* sClient, char* szRequest, char* szUri) {
   struct stat sBuf;
 
   szBuf    = new char[SMALLBUF]; // Memory for the filename.
-  szBuf[0] = NULL;
+  szBuf[0] = '\0';
   iRsp     = 200;
 
   if (strcmp(szRequest, "GET") != 0) // We only understand 'get'

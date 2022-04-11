@@ -80,7 +80,7 @@ int ReadConfig(char* szConfigName) {
   pAliasExec          = new Paths[MAX_ALIASES];
   eExtMap             = new Extensions[MAX_EXTENSIONS];
   eExtMap[0].szExt    = new char[1];
-  eExtMap[0].szExt[0] = NULL;
+  eExtMap[0].szExt[0] = '\0';
   eExtMap[0].szType   = strdup("application/octet-stream");
 
   while (! ifIn.eof()) // Until the end of the file.
@@ -167,7 +167,7 @@ int ReadConfig(char* szConfigName) {
       i = strlen(pAliasPath[iNum1].szTrue);
       if (pAliasPath[iNum1].szTrue[i - 1] != '/') {
         pAliasPath[iNum1].szTrue[i]     = '/';
-        pAliasPath[iNum1].szTrue[i + 1] = NULL;
+        pAliasPath[iNum1].szTrue[i + 1] = '\0';
       }
 
       iNum1++;
@@ -186,7 +186,7 @@ int ReadConfig(char* szConfigName) {
       i = strlen(pAliasExec[iNum2].szTrue);
       if (pAliasExec[iNum2].szTrue[i - 1] != '/') {
         pAliasExec[iNum2].szTrue[i]     = '/';
-        pAliasExec[iNum2].szTrue[i + 1] = NULL;
+        pAliasExec[iNum2].szTrue[i + 1] = '\0';
       }
 
       iNum2++;

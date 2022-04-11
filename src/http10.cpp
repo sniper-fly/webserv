@@ -178,7 +178,7 @@ int DoPath(Socket* sClient, char* szMethod, char* szPath, char* szSearch,
     // Check the last modified timestamp against the Request header.
     if ((hInfo->ttIfModSince > 0) && (hInfo->ttIfModSince < sBuf.st_mtime)) {
       sClient->Send("HTTP/1.0 304\r\n"); // No need to update.
-      szPath[0] = NULL;
+      szPath[0] = '\0';
       iRsp      = 304;
     } else {
       sClient->Send("HTTP/1.0 200\r\n");
@@ -336,7 +336,7 @@ int DoExec(Socket* sClient, int iMethod, char* szPath, Headers* hInfo) {
         i--; // Allow for C style indexing.
         while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
         {
-          sClient->szOutBuf[i] = NULL;
+          sClient->szOutBuf[i] = '\0';
           i--;
         }
         ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
@@ -486,7 +486,7 @@ char* ResolvePath(char* szUri) {
   }
 
   // Now we have the first component.
-  szRoot[i] = NULL;
+  szRoot[i] = '\0';
   if (*szRest != NULL)
     szRest++; // Advance past the '/'.
 
@@ -543,7 +543,7 @@ char* ResolveExec(char* szUri) {
     szRest++;
   }
 
-  szRoot[i] = NULL;
+  szRoot[i] = '\0';
   if (*szRest != NULL)
     szRest++; // Advance past the '/'.
 
