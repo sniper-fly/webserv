@@ -48,11 +48,11 @@ const int iNumMime = strlen(szMime);
 //
 
 int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
-  int      iRc, iRsp, iType, iMethod;
+  int      iRc, iRsp, iMethod;
   char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
   Headers* hInfo;
   long     lBytes = 0;
-  bool     bExec = false, bCgi = false, bPersistent;
+  bool     bCgi   = false, bPersistent;
 
   szReq    = strdup(sClient->szOutBuf); // Save the request line.
   iRsp     = 200;
@@ -187,7 +187,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
 int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szExt, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  char *        szTmp, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
   std::ofstream ofTmp;
   int iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone, iIfRange,
       iRangeErr;
@@ -213,7 +213,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     sprintf(szBuf, "WWW-Authenticate: Basic realm=\"%s\"\r\n", hInfo->szRealm);
     sClient->Send(szBuf);
     sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz401));
+    sprintf(szBuf, "Content-Length: %lu\r\n", strlen(sz401));
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->Send(sz401);
@@ -232,7 +232,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       delete[] szTmp;
     }
     sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz403));
+    sprintf(szBuf, "Content-Length: %lu\r\n", strlen(sz403));
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->Send(sz403);
@@ -243,7 +243,8 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   {
     iRc = Index(szPath, szSearch, szFile, hInfo->szUri);
     if (iRc != 0) {
-      iRc = SendError(sClient, "Resource not found.", 404, HTTP_1_1, hInfo);
+      iRc = SendError(
+          sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
       return iRc;
     }
     strcpy(szPath, szFile);
@@ -251,7 +252,8 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 
   iRc = stat(szPath, &sBuf);
   if (iRc < 0) {
-    iRsp = SendError(sClient, "Resource not found.", 404, HTTP_1_1, hInfo);
+    iRsp = SendError(
+        sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
     return iRsp;
   }
 
@@ -369,10 +371,12 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
   char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
-  int           iRsp = 200, iRc, iType, iIfUnmod, iIfMatch, iIfNone, i, iCount;
+  int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
   std::ifstream ifIn;
+
+  (void)szSearch;
 
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
@@ -391,7 +395,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     sprintf(szBuf, "WWW-Authenticate: Basic realm=\"%s\"\r\n", hInfo->szRealm);
     sClient->Send(szBuf);
     sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz401));
+    sprintf(szBuf, "Content-Length: %lu\r\n", strlen(sz401));
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->Send(sz401);
@@ -410,7 +414,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       delete[] szTmp;
     }
     sClient->Send("Content-Type: text/html\r\n");
-    sprintf(szBuf, "Content-Length: %d\r\n", strlen(sz403));
+    sprintf(szBuf, "Content-Length: %lu\r\n", strlen(sz403));
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->Send(sz403);
@@ -419,7 +423,8 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 
   iRc = stat(szPath, &sBuf);
   if (iRc < 0) {
-    iRsp = SendError(sClient, "Resource not found.", 404, HTTP_1_1, hInfo);
+    iRsp = SendError(
+        sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
     return iRsp;
   }
 
@@ -473,7 +478,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
-      while (iCount < hInfo->ulContentLength) {
+      while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
         iCount += i;
         // Remove the end of line.
@@ -488,7 +493,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     {
       ofOut.open(szFile, std::ios::binary); // Open in binary mode.
       iCount = 0;
-      while (iCount < hInfo->ulContentLength) {
+      while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
         iCount += i;
         ofOut.write(sClient->szOutBuf, i);
@@ -551,7 +556,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
   ifIn.close();
   iCount += 2; // The last CRLF isn't counted within the loop.
-  sprintf(szBuf, "Content-Length: %d\r\n\r\n", sBuf.st_size - iCount);
+  sprintf(szBuf, "Content-Length: %ld\r\n\r\n", sBuf.st_size - iCount);
   sClient->Send(szBuf);
 
   if (iMethod != HEAD) // Only send the entity if not HEAD.
@@ -623,7 +628,7 @@ char* MakeUnique(char* szDir, char* szExt) {
   szFileName = new char[PATH_LENGTH];
 
   while (bNotUnique) {
-    sprintf(szFileName, "%s%08d.%s", szDir, ulNum, szExt);
+    sprintf(szFileName, "%s%08lu.%s", szDir, ulNum, szExt);
     iRc = open(szFileName, O_CREAT | O_EXCL | O_WRONLY, S_IWRITE); // O_TEXT除外
     if (iRc != -1) {
       // Success. This file didn't exist before.
@@ -662,7 +667,7 @@ int DoTrace(Socket* sClient, Headers* hInfo) {
     hInfo->RcvHeaders(sClient);
     bPersistent = hInfo->bPersistent;
     delete hInfo;
-    SendError(sClient, "Server error.", 500, HTTP_1_1, hInfo);
+    SendError(sClient, (char*)"Server error.", 500, (char*)HTTP_1_1, hInfo);
     return bPersistent;
   }
 
