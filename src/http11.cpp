@@ -339,7 +339,8 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
+  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF];
+  char szFile[] = "tmpXXXXXX";
   int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
@@ -439,12 +440,13 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   if (iMethod == POST) {
     // Grab the posted data.
     cParms->szOutput = NULL;
-    tmpnam(szFile);
+    int fd = mkstemp(szFile);
+    // fd < 0 means mkstemp failed.
+    FILE* fp = fdopen(fd, "w");
     ft::strlwr(hInfo->szContentType);
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
     {
-      ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
       while ((unsigned long)iCount < hInfo->ulContentLength) {
@@ -456,19 +458,18 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
           sClient->szOutBuf[i] = '\0';
           i--;
         }
-        ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
+        fprintf(fp, "%s\n", sClient->szOutBuf); // Write to temp file.
       }
     } else // Binary data.
     {
-      ofOut.open(szFile, std::ios::binary); // Open in binary mode.
       iCount = 0;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
         iCount += i;
-        ofOut.write(sClient->szOutBuf, i);
+        fwrite(sClient->szOutBuf, sizeof(char), i, fp);
       }
     }
-    ofOut.close();
+    fclose(fp);
     cParms->szPost = szFile;
   }
 
