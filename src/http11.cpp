@@ -313,7 +313,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   // Send full entity.
   sprintf(szBuf, "Content-Type: %s\r\n", eExtMap[iType].szType);
   sClient->Send(szBuf);
-  sprintf(szBuf, "Content-Length: %ld\r\n", sBuf.st_size);
+  sprintf(szBuf, "Content-Length: %lld\r\n", sBuf.st_size);
   sClient->Send(szBuf);
   sClient->Send("\r\n");
 
@@ -339,7 +339,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], szFile[PATH_LENGTH];
+  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], *szFile;
   int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
@@ -439,7 +439,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   if (iMethod == POST) {
     // Grab the posted data.
     cParms->szOutput = NULL;
-    tmpnam(szFile);
+    szFile = MakeUnique(NULL, NULL);
     ft::strlwr(hInfo->szContentType);
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
@@ -525,7 +525,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
   ifIn.close();
   iCount += 2; // The last CRLF isn't counted within the loop.
-  sprintf(szBuf, "Content-Length: %ld\r\n\r\n", sBuf.st_size - iCount);
+  sprintf(szBuf, "Content-Length: %lld\r\n\r\n", sBuf.st_size - iCount);
   sClient->Send(szBuf);
 
   if (iMethod != HEAD) // Only send the entity if not HEAD.
@@ -942,7 +942,7 @@ int SendByteRange(Socket* sClient, Headers* hInfo, char* szPath,
       sprintf(szBuf, "Content-Type: %s\r\n", eExtMap[iType].szType);
       sClient->Send(szBuf); // Now content-type.
       sprintf(szBuf, "Content-Range: bytes %d-%d/%ld\r\n\r\n",
-          hInfo->rRanges[i].iStart, hInfo->rRanges[i].iEnd, sBuf->st_size);
+          hInfo->rRanges[i].iStart, hInfo->rRanges[i].iEnd, (long)sBuf->st_size);
       sClient->Send(szBuf); // Now content-range.
 
       ifIn.seekg(hInfo->rRanges[i].iStart, std::ios::beg);
