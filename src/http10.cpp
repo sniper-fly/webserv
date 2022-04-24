@@ -182,8 +182,9 @@ int SendError(
   char szBuf[PATH_LENGTH];
   int           iRc;
 
-  int fd = mkstemp(szTmp);
-  if (fd == -1) {
+  szTmp = MakeUnique(NULL, NULL);
+  ofTmp.open(szTmp);
+  if (! ofTmp) {
     sClient->Send(sz500); // Unable to get temp file, fail.
     return 500;
   }
@@ -207,7 +208,7 @@ int SendError(
   iRc = stat(szTmp, &sBuf);
   if (iRc == 0) {
     hInfo->ulContentLength = sBuf.st_size;
-    sprintf(szBuf, "Content-Length: %ld\r\n", sBuf.st_size);
+    sprintf(szBuf, "Content-Length: %lld\r\n", sBuf.st_size);
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->SendText(szTmp); // Send the file.
