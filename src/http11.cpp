@@ -525,7 +525,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
   ifIn.close();
   iCount += 2; // The last CRLF isn't counted within the loop.
-  sprintf(szBuf, "Content-Length: %lld\r\n\r\n", sBuf.st_size - iCount);
+  sprintf(szBuf, "Content-Length: %ld\r\n\r\n", (long)sBuf.st_size - iCount);
   sClient->Send(szBuf);
 
   if (iMethod != HEAD) // Only send the entity if not HEAD.
