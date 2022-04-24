@@ -3,6 +3,7 @@
 *.gcda
 *.gcno
 webserv
+webserv.dSYM/
 
 .vscode
 
@@ -10,3 +11,7 @@ objects/*
 cov_test.info
 coverageFiltered.info
 cov_test/*
+
+tmp/*
+*.html
+!.gitkeep
