@@ -598,7 +598,7 @@ char* MakeUnique(char* szDir, char* szExt) {
 
   while (bNotUnique) {
     sprintf(szFileName, "%s%08lu.%s", szDir, ulNum, szExt);
-    iRc = open(szFileName, O_CREAT | O_EXCL | O_WRONLY, S_IWRITE); // O_TEXT除外
+    iRc = open(szFileName, O_CREAT | O_EXCL | O_RDWR, S_IWRITE | S_IREAD); // O_TEXT除外
     if (iRc != -1) {
       // Success. This file didn't exist before.
       close(iRc);
