@@ -207,7 +207,7 @@ int SendError(
   iRc = stat(szTmp, &sBuf);
   if (iRc == 0) {
     hInfo->ulContentLength = sBuf.st_size;
-    sprintf(szBuf, "Content-Length: %lld\r\n", sBuf.st_size);
+    sprintf(szBuf, "Content-Length: %ld\r\n", (long)sBuf.st_size);
     sClient->Send(szBuf);
     sClient->Send("\r\n");
     sClient->SendText(szTmp); // Send the file.

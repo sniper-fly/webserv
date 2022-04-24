@@ -313,7 +313,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   // Send full entity.
   sprintf(szBuf, "Content-Type: %s\r\n", eExtMap[iType].szType);
   sClient->Send(szBuf);
-  sprintf(szBuf, "Content-Length: %lld\r\n", sBuf.st_size);
+  sprintf(szBuf, "Content-Length: %ld\r\n", (long)sBuf.st_size);
   sClient->Send(szBuf);
   sClient->Send("\r\n");
 
