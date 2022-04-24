@@ -444,7 +444,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
     {
-      ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
       while ((unsigned long)iCount < hInfo->ulContentLength) {
@@ -456,19 +455,18 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
           sClient->szOutBuf[i] = '\0';
           i--;
         }
-        ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
+        fprintf(fp, "%s\n", sClient->szOutBuf); // Write to temp file.
       }
     } else // Binary data.
     {
-      ofOut.open(szFile, std::ios::binary); // Open in binary mode.
       iCount = 0;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
         iCount += i;
-        ofOut.write(sClient->szOutBuf, i);
+        fwrite(sClient->szOutBuf, sizeof(char), i, fp);
       }
     }
-    ofOut.close();
+    fclose(fp);
     cParms->szPost = szFile;
   }
 
