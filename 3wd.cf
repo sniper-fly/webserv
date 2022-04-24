@@ -2,7 +2,7 @@
 # 3wd configuration file
 #
 
-ServerRoot \
+ServerRoot /
 
 #
 HostName Warp.rmt.utk.edu
@@ -22,10 +22,10 @@ GMTOffset -0500
 Welcome index.html
 
 #
-AccessLog \src\server1.1\access.log
+AccessLog /src/server1.1/access.log
 
 #
-ErrorLog \src\server1.1\error.log
+ErrorLog /src/server1.1/error.log
 
 #
 LogTime GMT
