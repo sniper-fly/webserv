@@ -181,7 +181,7 @@ int SendError(
   char *        szTmp, szBuf[PATH_LENGTH];
   int           iRc;
 
-  szTmp = MakeUnique(NULL, NULL);
+  szTmp = MakeUnique((char *)"tmp/tmpFile/", (char *)"html");
   ofTmp.open(szTmp);
   if (! ofTmp) {
     sClient->Send(sz500); // Unable to get temp file, fail.
@@ -199,7 +199,6 @@ int SendError(
   ofTmp << "<em>From server at:</em> " << szHostName << "<br>" << std::endl;
   ofTmp << "<em>Running:</em> " << szServerVer << "</body></html>" << std::endl;
   ofTmp.close();
-
   sprintf(szBuf, "%s %d\r\n", szVer, iCode);
   sClient->Send(szBuf);
   sClient->Send("Server: ");

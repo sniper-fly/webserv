@@ -89,7 +89,7 @@ int Index(char* szDoc, char* szSearch, char* szFile, char* szLink) {
   delete[] szBuf; // Delete memory not needed.
 
   // Now create a document with the counts in it.
-  szFile = MakeUnique(NULL, (char *)"html");
+  szFile = MakeUnique((char *)"tmp/tmpIndex/", (char *)"html");
   ofOut.open(szFile);
   if (! ofOut) // Could not produce a temporary file.
   {

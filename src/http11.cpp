@@ -439,7 +439,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   if (iMethod == POST) {
     // Grab the posted data.
     cParms->szOutput = NULL;
-    szFile = MakeUnique(NULL, NULL);
+    szFile = MakeUnique((char *)"tmp/tmpExec/", (char *)"txt");
     ft::strlwr(hInfo->szContentType);
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
