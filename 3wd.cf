@@ -2,7 +2,7 @@
 # 3wd configuration file
 #
 
-ServerRoot /
+ServerRoot ./
 
 #
 HostName Warp.rmt.utk.edu
@@ -19,7 +19,7 @@ DNSLookup On
 GMTOffset -0500
 
 #
-Welcome index.html
+Welcome src/index.html
 
 #
 AccessLog /src/server1.1/access.log
