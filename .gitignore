@@ -11,7 +11,5 @@ objects/*
 cov_test.info
 coverageFiltered.info
 cov_test/*
-tmp*
-tmp/*
 *.html
 !.gitkeep
