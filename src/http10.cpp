@@ -178,27 +178,27 @@ int SendError(
     Socket* sClient, char* szReason, int iCode, char* szVer, Headers* hInfo) {
   struct stat   sBuf;
   std::ofstream ofTmp;
-  char szTmp[] = "tmpXXXXXX";
-  char szBuf[PATH_LENGTH];
+  char *        szTmp, szBuf[PATH_LENGTH];
   int           iRc;
 
-  int fd = mkstemp(szTmp);
-  if (fd == -1) {
+  szTmp = MakeUnique((char *)"tmp/tmpFile/", (char *)"html");
+  ofTmp.open(szTmp);
+  if (! ofTmp) {
     sClient->Send(sz500); // Unable to get temp file, fail.
     return 500;
   }
-  FILE* fp = fdopen(fd, "w");
   // Write the temp file with the info.
-  fprintf(fp, "<!doctype html public \"-//IETF//DTD HTML 2.0//EN\">\n");
-  fprintf(fp, "<html><head>\n");
-  fprintf(fp, "<title>Error</title></head>\n");
-  fprintf(fp, "<body><h2>Error...</h2>Your request could not be honored.<hr><b>\n");
-  fprintf(fp, "%s\n", szReason);
-  fprintf(fp, "</b><hr><em>HTTP Response Code:</em> %d<br>\n", iCode);
-  fprintf(fp, "<em>From server at:</em> %s<br>\n", szHostName);
-  fprintf(fp, "<em>Running:</em> %s</body></html>\n", szServerVer);
-  fclose(fp);
-
+  ofTmp << "<!doctype html public \"-//IETF//DTD HTML 2.0//EN\">" << std::endl;
+  ofTmp << "<html><head>" << std::endl;
+  ofTmp << "<title>Error</title></head>" << std::endl;
+  ofTmp << "<body><h2>Error...</h2>Your request could not be honored.<hr><b>"
+        << std::endl;
+  ofTmp << szReason << std::endl;
+  ofTmp << "</b><hr><em>HTTP Response Code:</em> " << iCode << "<br>"
+        << std::endl;
+  ofTmp << "<em>From server at:</em> " << szHostName << "<br>" << std::endl;
+  ofTmp << "<em>Running:</em> " << szServerVer << "</body></html>" << std::endl;
+  ofTmp.close();
   sprintf(szBuf, "%s %d\r\n", szVer, iCode);
   sClient->Send(szBuf);
   sClient->Send("Server: ");

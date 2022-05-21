@@ -339,8 +339,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF];
-  char szFile[] = "tmpXXXXXX";
+  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], *szFile;
   int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
@@ -440,13 +439,12 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   if (iMethod == POST) {
     // Grab the posted data.
     cParms->szOutput = NULL;
-    int fd = mkstemp(szFile);
-    // fd < 0 means mkstemp failed.
-    FILE* fp = fdopen(fd, "w");
+    szFile = MakeUnique((char *)"tmp/tmpExec/", (char *)"txt");
     ft::strlwr(hInfo->szContentType);
     szPtr = strstr(hInfo->szContentType, "text/");
     if (szPtr != NULL) // Receiving text data.
     {
+      ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
       while ((unsigned long)iCount < hInfo->ulContentLength) {
@@ -458,18 +456,19 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
           sClient->szOutBuf[i] = '\0';
           i--;
         }
-        fprintf(fp, "%s\n", sClient->szOutBuf); // Write to temp file.
+        ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
       }
     } else // Binary data.
     {
+      ofOut.open(szFile, std::ios::binary); // Open in binary mode.
       iCount = 0;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
         iCount += i;
-        fwrite(sClient->szOutBuf, sizeof(char), i, fp);
+        ofOut.write(sClient->szOutBuf, i);
       }
     }
-    fclose(fp);
+    ofOut.close();
     cParms->szPost = szFile;
   }
 
@@ -599,7 +598,7 @@ char* MakeUnique(char* szDir, char* szExt) {
 
   while (bNotUnique) {
     sprintf(szFileName, "%s%08lu.%s", szDir, ulNum, szExt);
-    iRc = open(szFileName, O_CREAT | O_EXCL | O_WRONLY, S_IWRITE); // O_TEXT除外
+    iRc = open(szFileName, O_CREAT | O_EXCL | O_RDWR, S_IWRITE | S_IREAD); // O_TEXT除外
     if (iRc != -1) {
       // Success. This file didn't exist before.
       close(iRc);
