@@ -130,9 +130,8 @@ int Socket::SendText(char* szFileName) {
       break;                                        // The last line
                                                     // doesn't get an
                                                     // eol appended.
-    iErr += send(iSock, "\r\n", strlen("\r\n"), 0); // The eol.
-  } while (! ifIn.eof());
-
+    iErr += send(iSock, "\n", strlen("\n"), 0); // The eol.
+  } while (1);
   ifIn.close();
   delete[] szBuf;
   return iErr;
