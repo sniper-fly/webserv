@@ -176,12 +176,14 @@ void W3Conn(void* arg) {
   if (ft::stricmp(szVer, "http/1.1") == 0)
   { // TODO 毎回 http 1.1かどうかcheckしない？
     iRc = DoHttp11(sClient, szRequest, szUri);
-    while (iRc == true) // Do persistent connections.
-    {
-      sClient->RecvTeol(NO_EOL);
-      sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
-      iRc = DoHttp11(sClient, szRequest, szUri);
-    }
+    // while (iRc == true) // Do persistent connections.
+    // {
+    //   sClient->RecvTeol(NO_EOL);
+    //   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
+    //   printf("2nd: %s %s %s\n", szRequest, szUri, szVer);
+    //   iRc = DoHttp11(sClient, szRequest, szUri);
+    // }
+    (void)iRc;
   } else // Treat this request as a HTTP/0.9 request.
   {
     std::cerr << "unknown http version" << std::endl; // TODO

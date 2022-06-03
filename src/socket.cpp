@@ -244,23 +244,19 @@ int Socket::Recv(int iBytes) {
 // also.
 //
 
-int Socket::RecvTeol(int iToast) {
-  int iState = 1, idx = 0;
-#ifdef __OS2__
-  int fdsSocks[1];
-#elif __WINDOWS__
+int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
+                                   // possibly remove the telnet eol
+  int            iState = 1, idx = 0;
+  int            nfds = 0;
   fd_set         fdsSocks;
   struct timeval stTimeout;
-#endif
 
-  memset(szOutBuf, 0, MAX_SOCK_BUFFER);
-
+  bzero(szOutBuf, MAX_SOCK_BUFFER);
   while (iState != 0) {
     switch (iState) {
       case 1: // Figure out where to start.
         {
-          if ((iEnd1 == 0) && (iEnd2 == 0)) // Both buffers empty.
-          {
+          if ((iEnd1 == 0) && (iEnd2 == 0)) { // Both buffers empty.
             iState = 2;
           } else {
             iState = 3;
@@ -269,50 +265,38 @@ int Socket::RecvTeol(int iToast) {
         }
       case 2: // Fill the buffers with data.
         {
-#ifdef __OS2__
-          fdsSocks[0] = iSock;
-          iErr        = select(fdsSocks, 1, 0, 0, ulTimeout * 1000);
-          if (iErr < 1) // Error occured.
-          {
-            return -1;
-          }
-#elif __WINDOWS__
-          FD_ZERO(&fdsSocks);
-          FD_SET(iSock, &fdsSocks);
+          FD_ZERO(&fdsSocks); // 集合の消去
+          nfds = 0;
+          FD_SET(iSock, &fdsSocks); // fdsSocksにiSockを追加する
+          nfds             = std::max(nfds, iSock);
           stTimeout.tv_sec = ulTimeout;
-          iErr             = select(1, &fdsSocks, 0, 0, &stTimeout);
-          if (iErr < 1) // Error occured.
-          {
+          iErr             = select(nfds + 1, &fdsSocks, NULL, NULL,
+              &stTimeout); // max{r,w,e}+1, read, write, ex, time
+          if (iErr < 1) {              // Error occured.
             return -1;
           }
-#endif
-          iErr = recv(iSock, szBuf1, MAX_SOCK_BUFFER / 2, 0);
+          // message length = recv()
+          iErr = recv(iSock, szBuf1, (MAX_SOCK_BUFFER) / 2,
+              0); // sockfd, buf, len, flags
           if (iErr < 1) {
             iState = 0;
             break;
           }
+
           iBeg1 = 0;
           iEnd1 = iErr;
-          if (iErr == MAX_SOCK_BUFFER / 2) // Filled up Buffer 1.
+          if (iErr == (MAX_SOCK_BUFFER) / 2) // Filled up Buffer 1.
           {
-#ifdef __OS2__
-            fdsSocks[0] = iSock;
-            iErr        = select(fdsSocks, 1, 0, 0, ulTimeout * 1000);
-            if (iErr < 1) // Error occured.
-            {
-              return -1;
-            }
-#elif __WINDOWS__
             FD_ZERO(&fdsSocks);
+            nfds = 0;
             FD_SET(iSock, &fdsSocks);
+            nfds             = std::max(nfds, iSock);
             stTimeout.tv_sec = ulTimeout;
-            iErr             = select(1, &fdsSocks, 0, 0, &stTimeout);
-            if (iErr < 1) // Error occured.
-            {
+            iErr             = select(nfds + 1, &fdsSocks, 0, 0, &stTimeout);
+            if (iErr < 1) { // Error occured.
               return -1;
             }
-#endif
-            iErr = recv(iSock, szBuf2, MAX_SOCK_BUFFER / 2, 0);
+            iErr = recv(iSock, szBuf2, (MAX_SOCK_BUFFER) / 2, 0);
             if (iErr < 1) {
               iState = 0;
               break;
@@ -326,23 +310,23 @@ int Socket::RecvTeol(int iToast) {
         }
       case 3: // Look for the EOL sequence.
         {
-          if ((iBuf == 1) && (iEnd1 != 0)) // Use Buffer 1 first.
-          {
-            for (; iBeg1 < iEnd1; iBeg1++) {
-              szOutBuf[idx] = szBuf1[iBeg1]; // Copy.
+          if ((iBuf == 1) && (iEnd1 != 0))
+          { // Use Buffer 1 first. iEnd1 = szBuf1.size()
+            for (; iBeg1 < iEnd1; ++iBeg1) { // iBeg1[0, iEnd1)
+              szOutBuf[idx] = szBuf1[iBeg1]; // Copy.   idx[0, N)
               if ((szOutBuf[idx] == '\n') || (szOutBuf[idx] == '\r')) {
-                iBeg1++; // Count the char just read.
+                ++iBeg1; // Count the char just read.
                 if ((szOutBuf[idx] == '\r') && (szBuf1[iBeg1] == '\n')) {
                   // Using CRLF as end-of-line.
-                  idx++;
-                  szOutBuf[idx] = szBuf1[iBeg1];
-                  iBeg1++; // Consume LF.
+                  ++idx;
+                  szOutBuf[idx] = szBuf1[iBeg1]; // '\n'
+                  ++iBeg1;                       // Consume LF.
                 }
                 szOutBuf[idx + 1] = '\0'; // True. Null line.
                 iState            = 4;    // Goto cleanup & exit.
                 break;                    // Break from for loop.
               }
-              idx++;                            // Advance to next spot.
+              ++idx;                            // Advance to next spot.
               if ((idx + 1) == MAX_SOCK_BUFFER) // Out of room.
               {
                 szOutBuf[MAX_SOCK_BUFFER] = '\0';
@@ -353,24 +337,23 @@ int Socket::RecvTeol(int iToast) {
             if (iBeg1 == iEnd1)
               iBeg1 = iEnd1 = 0; // Reset.
             if (iState == 3)
-              iBuf = 2;                           // EOL not found yet.
-          } else if ((iBuf == 2) && (iEnd2 != 0)) // Use Buffer 2.
-          {
-            for (; iBeg2 < iEnd2; iBeg2++) {
+              iBuf = 2;                             // EOL not found yet.
+          } else if ((iBuf == 2) && (iEnd2 != 0)) { // Use Buffer 2.
+            for (; iBeg2 < iEnd2; ++iBeg2) {
               szOutBuf[idx] = szBuf2[iBeg2]; // Copy.
               if ((szOutBuf[idx] == '\n') || (szOutBuf[idx] == '\r')) {
-                iBeg2++; // Count the char just read
+                ++iBeg2; // Count the char just read
                 if ((szOutBuf[idx] == '\r') && (szBuf2[iBeg2] == '\n')) {
                   // Using CRLF as end-of-line.
-                  idx++;
-                  szOutBuf[idx] = szBuf2[iBeg2];
-                  iBeg2++;
+                  ++idx;
+                  szOutBuf[idx] = szBuf2[iBeg2]; // \n
+                  ++iBeg2;
                 }
                 szOutBuf[idx + 1] = '\0'; // True. Null line.
                 iState            = 4;    // Goto cleanup & exit.
                 break;                    // Break from for loop.
               }
-              idx++;                            // Advance to next spot.
+              ++idx;                            // Advance to next spot.
               if ((idx + 1) == MAX_SOCK_BUFFER) // Out of room.
               {
                 szOutBuf[MAX_SOCK_BUFFER] = '\0';
@@ -382,8 +365,7 @@ int Socket::RecvTeol(int iToast) {
               iBeg2 = iEnd2 = 0; // Reset.
             if (iState == 3)
               iBuf = 1; // EOL not found yet.
-          } else        // Both buffers empty and still no eol.
-          {
+          } else {      // Both buffers empty and still no eol.
             if (idx < MAX_SOCK_BUFFER) {
               iState = 2; // Still room. Refill the buffers.
             } else {
@@ -404,7 +386,9 @@ int Socket::RecvTeol(int iToast) {
   {
     while ((szOutBuf[idx] == '\r') || (szOutBuf[idx] == '\n')) {
       szOutBuf[idx] = '\0';
-      idx--;
+      --idx;
+      if (idx < 0)
+        break;
     }
   }
 
