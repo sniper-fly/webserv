@@ -63,6 +63,23 @@ class Socket
       delete[] szPeerName;
   };
 
+
+  void debug(){
+    std::cerr << "iLen     : " << iLen << std::endl;
+    std::cerr << "iSock    : " << iSock << std::endl;
+    std::cerr << "iErr     : " << iErr << std::endl;
+    std::cerr << "szOutBuf : " << szOutBuf << std::endl;
+    std::cerr << "szBuf1   : " << szBuf1 << std::endl;
+    std::cerr << "szBuf2   : " << szBuf2 << std::endl;
+    std::cerr << "iBeg1    : " << iBeg1 << std::endl;
+    std::cerr << "iEnd1    : " << iEnd1 << std::endl;
+    std::cerr << "iBeg2    : " << iBeg2 << std::endl;
+    std::cerr << "iEnd2    : " << iEnd2 << std::endl;
+    std::cerr << "iBuf     : " << iBuf << std::endl;
+    std::cerr << "szPeerIp : " << szPeerIp << std::endl;
+    std::cerr << "szPeerNam: " << szPeerName << std::endl;
+    std::cerr << "ulTimeout: " << ulTimeout  << std::endl;
+  }
   int Create() // Allocate a socket for use
   {
     iSock = socket(AF_INET, SOCK_STREAM, 0);

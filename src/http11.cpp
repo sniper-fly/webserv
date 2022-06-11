@@ -62,6 +62,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   iMethod  = CheckMethod(szMethod); // The request method.
 
   hInfo->RcvHeaders(sClient);          // Grab the request headers.
+
   bPersistent = hInfo->bPersistent;    // Find out if close was requested.
   iRc         = hInfo->CheckHeaders(); // Make sure none are inconsistent.
   if (iRc == false)                    // Bad request.

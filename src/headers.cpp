@@ -259,8 +259,9 @@ int Headers::CheckHeaders() {
   int i, j;
 
   // Check for the host header first.
-  if (szHost == NULL)
+  if (szHost == NULL){
     return false;
+  }
 
   // First check to make sure the If-Unmodified-Since time
   // is not before the If-Modified-Since time.

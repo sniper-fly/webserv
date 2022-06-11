@@ -178,7 +178,8 @@ void W3Conn(void* arg) {
     iRc = DoHttp11(sClient, szRequest, szUri);
     while (iRc == true) // Do persistent connections.
     {
-      sClient->RecvTeol(NO_EOL);
+      sClient->RecvTeol(NO_EOL); // ここ入ってない
+      if (sClient->iErr == 0) continue;
       sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
       iRc = DoHttp11(sClient, szRequest, szUri);
     }
