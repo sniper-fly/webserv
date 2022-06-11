@@ -1,8 +1,0 @@
-<!doctype html public "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>Error</title></head>
-<body><h2>Error...</h2>Your request could not be honored.<hr><b>
-Missing Host header or incompatible headers detected.
-</b><hr><em>HTTP Response Code:</em> 400<br>
-<em>From server at:</em> Warp.rmt.utk.edu<br>
-<em>Running:</em> 3wd/1.1</body></html>
