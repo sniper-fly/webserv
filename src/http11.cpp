@@ -114,6 +114,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // A simple GET or HEAD request.
   else if ((iMethod == GET) && (szPath != NULL))
   {
+    //test
     iRsp = DoPath11(sClient, iMethod, szPath, szSearch, hInfo);
   }
   // Unknown method used.
