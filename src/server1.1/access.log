@@ -35,3 +35,5 @@ localhost - - [18/Jun/2022:10:55:04 000] "GET /images/frog-icon.jpeg HTTP/1.1" 3
 localhost - - [18/Jun/2022:10:55:13 000] "GET /images/dilbert1.gif HTTP/1.1" 304 0
 localhost - - [18/Jun/2022:10:55:13 000] "GET /images/os2warpwave.gif HTTP/1.1" 304 0
 localhost - - [18/Jun/2022:10:55:13 000] "GET /images/yellow.gif HTTP/1.1" 4043 309
+localhost - - [18/Jun/2022:11:08:45 000] "delete /index.html HTTP/1.1" 501 320
+localhost - - [18/Jun/2022:11:08:56 000] "GET /index.html HTTP/1.1" 4043 309
