@@ -12,5 +12,5 @@ cov_test.info
 coverageFiltered.info
 cov_test/*
 tmp/*/*.html
-*/*/.log
+*.log
 !.gitkeep
