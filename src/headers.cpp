@@ -367,6 +367,7 @@ Headers::Headers() {
   szAuthType         = NULL;
   szRemoteUser       = NULL;
   szAccept           = NULL;
+  szAcceptRanges     = NULL;
   szAcceptCharset    = NULL;
   szAcceptEncoding   = NULL;
   szAcceptLanguage   = NULL;
