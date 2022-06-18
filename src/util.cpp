@@ -145,6 +145,7 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
     szName = szWriteAccess;
   }
 
+  // bPersistent == false のときNULL
   szTmpPath = strdup(szPath);
 
   l = strlen(szTmpPath) - 1;

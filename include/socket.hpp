@@ -65,6 +65,7 @@ class Socket
 
 
   void debug(){
+    std::cerr << "//////////////Socket debug////////////////////////" << std::endl;
     std::cerr << "iLen     : " << iLen << std::endl;
     std::cerr << "iSock    : " << iSock << std::endl;
     std::cerr << "iErr     : " << iErr << std::endl;

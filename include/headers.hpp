@@ -39,6 +39,7 @@ class Headers
   int RcvHeaders(Socket* sClient);
   int CheckHeaders();
   int FindRanges(int iSize);
+  void debug();
 
   char *szMethod, *szUri, *szVer, *szQuery, *szAuthType, *szRemoteUser,
       *szAccept, *szAcceptCharset, *szAcceptEncoding, *szAcceptLanguage,

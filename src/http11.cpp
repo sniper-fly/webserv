@@ -96,6 +96,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   szPath          = ResolvePath(szUri); // Check for path match.
   szCgi           = ResolveExec(szUri); // Check for exec match.
 
+  hInfo->debug();
   // Now key on the request method and URI given.
   // Any POST request.
   if (iMethod == POST) {

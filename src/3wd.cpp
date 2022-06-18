@@ -131,6 +131,7 @@ void Server() {
   for (;;) // Forever
   {
     sClient = sSock.Accept(); // Listen for incoming connections
+    std::cerr << sClient->iSock << " Accepted" << std::endl;
     if (sClient == NULL) {
       continue;
     }
@@ -153,6 +154,7 @@ void Server() {
 //
 
 void W3Conn(void* arg) {
+  std::cerr << "Start W3Conn" << std::endl;
   Socket* sClient;
   char *  szRequest, *szUri, *szVer;
   int     iRc;
@@ -169,6 +171,7 @@ void W3Conn(void* arg) {
   szVer     = new char[SMALLBUF];
 
   iRc = sClient->RecvTeol(NO_EOL); // Get the message
+  sClient->debug();
 
   // Parse the components of the request
   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
@@ -178,8 +181,9 @@ void W3Conn(void* arg) {
     iRc = DoHttp11(sClient, szRequest, szUri);
     while (iRc == true) // Do persistent connections.
     {
-      sClient->RecvTeol(NO_EOL); // ここ入ってない
+      sClient->RecvTeol(NO_EOL);
       if (sClient->iErr == 0) continue;
+      sClient->debug();
       sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
       iRc = DoHttp11(sClient, szRequest, szUri);
     }
