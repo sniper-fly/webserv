@@ -183,8 +183,9 @@ void W3Conn(void* arg) {
     {
       sClient->RecvTeol(NO_EOL);
       if (sClient->iErr == 0) continue;
-      sClient->debug();
+      // sClient->debug();
       sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
+      sClient->debug();
       iRc = DoHttp11(sClient, szRequest, szUri);
     }
   } else // Treat this request as a HTTP/0.9 request.

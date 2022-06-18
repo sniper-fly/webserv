@@ -69,12 +69,15 @@ char* ResolvePath(char* szUri) {
   char *szRest, *szRoot;
   bool  bFound = false;
 
+  fprintf(stderr, "start ResolvePath\n");
   if (strcmp(szUri, "/") == 0) // They asked for the root directory doc.
   {
     szRoot = strdup(szServerRoot);
+    fprintf(stderr, "szRoot: %s\n", szRoot);
     return szRoot;
   }
 
+  fprintf(stderr, "szUri: %s\n", szUri);
   // Now isolate the first component of the requested path.
   szRest = szUri;
   szRoot = new char[PATH_LENGTH];
@@ -116,6 +119,7 @@ char* ResolvePath(char* szUri) {
     }
     memset(szRoot, 0, PATH_LENGTH);
     sprintf(szRoot, "%s%s", szServerRoot, szRest);
+    fprintf(stderr, "szRoot: %s\n", szRoot);
     return (szRoot);
   }
 

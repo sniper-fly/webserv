@@ -127,7 +127,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   else
   {
     iRsp = SendError(
-        sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
+        sClient, (char*)"Resource not found.", 4041, (char*)HTTP_1_1, hInfo);
   }
 
   // This request now finished. Log the results.
@@ -215,16 +215,17 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     iRc = Index(szPath, szSearch, szFile, hInfo->szUri);
     if (iRc != 0) {
       iRc = SendError(
-          sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
+          sClient, (char*)"Resource not found.", 4042, (char*)HTTP_1_1, hInfo);
       return iRc;
     }
     strcpy(szPath, szFile);
   }
 
+  fprintf(stderr, "szPath: %s\n", szPath);
   iRc = stat(szPath, &sBuf);
   if (iRc < 0) {
     iRsp = SendError(
-        sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
+        sClient, (char*)"Resource not found.", 4043, (char*)HTTP_1_1, hInfo);
     return iRsp;
   }
 
@@ -395,7 +396,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   iRc = stat(szPath, &sBuf);
   if (iRc < 0) {
     iRsp = SendError(
-        sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
+        sClient, (char*)"Resource not found.", 4044, (char*)HTTP_1_1, hInfo);
     return iRsp;
   }
 

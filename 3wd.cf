@@ -22,10 +22,10 @@ GMTOffset -0500
 Welcome src/index.html
 
 #
-AccessLog /src/server1.1/access.log
+AccessLog ./src/server1.1/access.log
 
 #
-ErrorLog /src/server1.1/error.log
+ErrorLog ./src/server1.1/error.log
 
 #
 LogTime GMT
@@ -41,21 +41,21 @@ WriteAccessName 3wdwrite
 #
 # Up to 128 path aliases allowed.
 #
-PathAlias /apache /apache
-PathAlias /images /images/
-PathAlias /other /other
-PathAlias /rfc /rfc
-PathAlias /src /src
-PathAlias /std /std
-PathAlias /VisualAge /VisualAge
-PathAlias /w3c /w3c
-PathAlias /Syntax /Syntax
-PathAlias /Book /book
-PathAlias /    /
-PathAlias /1.0 /src/server1.0/
-PathAlias /1.1 /src/server1.1/
-PathAlias /0.9 /src/server0.9/
- 
+PathAlias /apache ./apache
+PathAlias /images ./images/
+PathAlias /other ./other
+PathAlias /rfc ./rfc
+PathAlias /src ./src
+PathAlias /std ./std
+PathAlias /VisualAge ./VisualAge
+PathAlias /w3c ./w3c
+PathAlias /Syntax ./Syntax
+PathAlias /Book ./book
+PathAlias /    ./
+PathAlias /1.0 ./src/server1.0/
+PathAlias /1.1 ./src/server1.1/
+PathAlias /0.9 ./src/server0.9/
+
 #
 # ExecAlias is used to map cgi-bin aliases to real locations
 #
