@@ -61,12 +61,12 @@ PathAlias /0.9 ./src/server0.9/
 #
 # Up to 128 exec aliases allowed.
 #
-ExecAlias /cgi-bin /src/server1.1/cgi-bin
+ExecAlias /cgi-bin ./src/server1.1/cgi-bin
 
 #
 # DeleteDir is used to put store deleted resources
 #
-DeleteDir /src/server1.1/delete/
+DeleteDir ./src/server1.1/delete/
 
 #
 # ExtType is used to map file extensions to the appropriate MIME type.
