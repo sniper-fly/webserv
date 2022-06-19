@@ -629,7 +629,7 @@ char* MakeUnique(char* szDir, char* szExt) {
 
 int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szExt, szBuf[PATH_LENGTH];
+  char *        szTmp = NULL, *szExt, szBuf[PATH_LENGTH];
   std::ofstream ofTmp;
   int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone;
 
@@ -713,7 +713,6 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
     }
     szTmp = MakeUnique(szDeleteDir, szExt);
     ft::copyFile(szPath, szTmp);
-    delete[] szTmp;
   }
   iRc = unlink(szPath);
   if (iRc == 0) // Resource deleted.
@@ -723,8 +722,10 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
   } else // Delete failed.
   {
     sClient->Send("HTTP/1.1 500 Server Error\r\n");
+    unlink(szTmp);
     iRsp = 500;
   }
+  delete[] szTmp;
   sClient->Send("Server: ");
   sClient->Send(szServerVer);
   sClient->Send("\r\n");
@@ -735,6 +736,7 @@ int DoDelete(Socket* sClient, char* szPath, char* szCgi, Headers* hInfo) {
     sClient->Send("\r\n");
     delete[] szTmp;
   }
+  sClient->Send("Content-Length: 0\r\n");
   sClient->Send("\r\n");
   hInfo->ulContentLength = 0;
   return iRsp;
