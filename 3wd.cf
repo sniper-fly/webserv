@@ -111,7 +111,3 @@ ExtType zip     application/unzip
 ExtType exe     application/octet-stream
 ExtType ps      application/postscript
 ExtType dvi     application/x-dvi
-
-
-
-
