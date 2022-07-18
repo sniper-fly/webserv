@@ -99,6 +99,7 @@ char* ResolvePath(char* szUri) {
   // Compare it to our list of aliases.
   for (i = 0; i < iNumPathAliases; i++) {
     // Case insensitive comparison.
+    fprintf(stderr, "pAliathPath: %s\n", pAliasPath[i].szAlias);
     if (ft::stricmp(szRoot, pAliasPath[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasPath[i].szTrue, szRest);
@@ -156,6 +157,7 @@ char* ResolveExec(char* szUri) {
 
   // Compare to the list of exec path aliases.
   for (i = 0; i < iNumExecAliases; i++) {
+     fprintf(stderr, "pExecAliath: %s\n", pAliasExec[i].szAlias);
     if (ft::stricmp(szRoot, pAliasExec[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasExec[i].szTrue, szRest);

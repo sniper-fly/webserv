@@ -350,7 +350,9 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 
   (void)szSearch;
 
+  fprintf(stderr, "szPath: %s\n", szPath);
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
+  fprintf(stderr, "iRc   : %d\n", iRc);
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
   {
     sClient->Send("HTTP/1.1 401 \r\n");
@@ -394,6 +396,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
 
   iRc = stat(szPath, &sBuf);
+  fprintf(stderr, "iRc   : %d\n", iRc);
   if (iRc < 0) {
     iRsp = SendError(
         sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
@@ -433,7 +436,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     hInfo->ulContentLength = 0; // For the logfile.
     return iRsp;                // Don't send anything else.
   }
-
   // Execute the cgi program here.
   cParms          = new Cgi();
   cParms->hInfo   = hInfo;
@@ -474,9 +476,9 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     ofOut.close();
     cParms->szPost = szFile;
   }
-
+  fprintf(stderr, "cParms->szPost: %s\n", cParms->szPost);
   ExecCgi(cParms); // Run the cgi program.
-
+  fprintf(stderr, "cParms->szOutput: %s\n", cParms->szOutput);
   stat(cParms->szOutput, &sBuf);
   ifIn.open(cParms->szOutput); // Open the output file.
   iCount = 0;
@@ -530,13 +532,14 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   iCount += 2; // The last CRLF isn't counted within the loop.
   sprintf(szBuf, "Content-Length: %ld\r\n\r\n", (long)sBuf.st_size - iCount);
   sClient->Send(szBuf);
-
+  fprintf(stderr, "szBuf   : %s\n", szBuf);
   if (iMethod != HEAD) // Only send the entity if not HEAD.
   {
     hInfo->ulContentLength = sBuf.st_size - iCount;
     ifIn.open(cParms->szOutput, std::ios::binary);
     ifIn.seekg(iCount, std::ios::beg);
-    while (! ifIn.eof()) {
+    fprintf(stderr, "cParms->szOutput: %s\n", cParms->szOutput);
+    while (!ifIn.eof()) {
       ifIn.read(szBuf, SMALLBUF);
       i = ifIn.gcount();
       sClient->Send(szBuf, i);
@@ -545,7 +548,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   } else {
     hInfo->ulContentLength = 0;
   }
-
   // Remove the temporary files and memory.
   unlink(cParms->szOutput);
   delete[](cParms->szOutput);
