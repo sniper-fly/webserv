@@ -476,9 +476,11 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     ofOut.close();
     cParms->szPost = szFile;
   }
-  fprintf(stderr, "cParms->szPost: %s\n", cParms->szPost);
+  std::cerr << "[DoExec11] pre ExecCgi" << std::endl;
+  cParms->debug();
   ExecCgi(cParms); // Run the cgi program.
-  fprintf(stderr, "cParms->szOutput: %s\n", cParms->szOutput);
+  std::cerr << "[DoExec11] aft ExecCgi" << std::endl;
+  cParms->debug();
   stat(cParms->szOutput, &sBuf);
   ifIn.open(cParms->szOutput); // Open the output file.
   iCount = 0;

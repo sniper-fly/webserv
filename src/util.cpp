@@ -137,6 +137,8 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
   int         l, iRc;
   bool        bNotFound = true;
   struct stat sBuf;
+  if (szPath)
+  std::cerr << "[CheckAuth] szPath:" << szPath << std::endl;
 
   if (iType == READ_ACCESS) // Check for read or write access.
   {

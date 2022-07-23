@@ -34,6 +34,13 @@ class Cgi
   char *szOutput;   // File containing output data.
   Headers *hInfo;   // Various info needed.
   Socket *sClient;  // Various info needed.
+
+  void debug(){
+    std::cerr << "////////////////Cgi debug/////////////////" << std::endl;
+    if (szProg) std::cerr << "szProg            :" << szProg << std::endl;
+    if (szPost) std::cerr << "szPost            :" << szPost << std::endl;
+    if (szOutput) std::cerr << "szOutput          :" << szOutput << std::endl;
+  }
 };
 
 
