@@ -452,9 +452,11 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
+      std::cerr << "[DoExec11] hInfo->ulContentLength:" << hInfo->ulContentLength << std::endl;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
         iCount += i;
+        std::cerr << "[DoExec11] iCount:" << iCount << std::endl;
         // Remove the end of line.
         while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
         {
