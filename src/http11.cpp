@@ -463,6 +463,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
           sClient->szOutBuf[i] = '\0';
           i--;
         }
+        std::cerr << "sClient->szOutBuf: " << sClient->szOutBuf << std::endl;
         ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
       }
     } else // Binary data.
@@ -533,7 +534,9 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     ifIn.getline(szBuf, SMALLBUF, '\n'); // コンパイラがvcc
   }
   ifIn.close();
-  iCount += 2; // The last CRLF isn't counted within the loop.
+  if (sBuf.st_size > 2) {
+    iCount += 2; // The last CRLF isn't counted within the loop.
+  }
   sprintf(szBuf, "Content-Length: %ld\r\n\r\n", (long)sBuf.st_size - iCount);
   sClient->Send(szBuf);
   fprintf(stderr, "szBuf   : %s\n", szBuf);
