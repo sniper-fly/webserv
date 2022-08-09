@@ -452,15 +452,18 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
       ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
+      std::cerr << "[DoExec11] hInfo->ulContentLength:" << hInfo->ulContentLength << std::endl;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
         iCount += i;
+        std::cerr << "[DoExec11] iCount:" << iCount << std::endl;
         // Remove the end of line.
         while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
         {
           sClient->szOutBuf[i] = '\0';
           i--;
         }
+        std::cerr << "sClient->szOutBuf: " << sClient->szOutBuf << std::endl;
         ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
       }
     } else // Binary data.
@@ -531,7 +534,9 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     ifIn.getline(szBuf, SMALLBUF, '\n'); // コンパイラがvcc
   }
   ifIn.close();
-  iCount += 2; // The last CRLF isn't counted within the loop.
+  if (sBuf.st_size > 2) {
+    iCount += 2; // The last CRLF isn't counted within the loop.
+  }
   sprintf(szBuf, "Content-Length: %ld\r\n\r\n", (long)sBuf.st_size - iCount);
   sClient->Send(szBuf);
   fprintf(stderr, "szBuf   : %s\n", szBuf);

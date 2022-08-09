@@ -337,8 +337,15 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
             }
             if (iBeg1 == iEnd1)
               iBeg1 = iEnd1 = 0; // Reset.
-            if (iState == 3)
-              iBuf = 2;                             // EOL not found yet.
+            // if (iState == 3)
+            //   iBuf = 2;
+            if (iState == 3 && iEnd2 != 0){ // buf2がないなら終了
+              iBuf = 2;
+            }
+            else{
+              iState = 4;
+            }
+                             // EOL not found yet.
           } else if ((iBuf == 2) && (iEnd2 != 0)) { // Use Buffer 2.
             for (; iBeg2 < iEnd2; ++iBeg2) {
               szOutBuf[idx] = szBuf2[iBeg2]; // Copy.

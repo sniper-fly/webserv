@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/types.h> 
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #define INCL_DOS
 #define INCL_DOSFILEMGR
@@ -75,10 +76,11 @@ int ExecCgi(Cgi* cParms) {
 
   // DosDupHandle(STDIN, (PHFILE)&stdin_save);
   // DosDupHandle(STDOUT, (PHFILE)&stdout_save);
+  stdin_save = dup(STDIN);
+  stdout_save = dup(STDOUT);
 
   // DosCreatePipe((PHFILE) & (pIn[0]), (PHFILE) & (pIn[1]), 4096); // Create the pipe
   // DosCreatePipe((PHFILE) & (pOut[0]), (PHFILE) & (pOut[1]), 4096);
-
   pipe(pIn);
   pipe(pOut);
 
@@ -92,23 +94,23 @@ int ExecCgi(Cgi* cParms) {
   // _setmode(pIn[0], O_BINARY); // Binary mode on the pipes
   // _setmode(pOut[1], O_BINARY);
 
-  dup2(STDIN, stdin_save);
-  dup2(STDOUT, stdout_save);
-
   fprintf(stderr, "kokomade OK 0\n");
+  // 標準入力がfpoutに書かれる
   fpout = fdopen(pIn[1], "w"); // create FILE handle
   dup2(pIn[0], hfStdin);
   close(pIn[0]); // close the read handle
 
+  // 標準出力がfpinに読まれる
   fpin = fdopen(pOut[0], "r"); // create FILE handle
   dup2(pOut[1], hfStdout);
   close(pOut[1]); // close the write handle
+  std::cerr << "[ExecCgi]" << " pIn[0]:0" << " fpout(pIn[1]):" << pIn[1] << " fpin(pOut[0]):" << pOut[0] << " pOut[1]:1" << std::endl;
 
   setbuf(fpin, NULL); // Turn buffering off.
   setbuf(fpout, NULL);
 
   // Setting the environment variables.
-  fprintf(stderr, "kokomade OK 0\n");
+  fprintf(stderr, "kokomade OK 1\n");
   sprintf(szServerProtocol, "SERVER_PROTOCOL=%s", cParms->hInfo->szVer);
   sprintf(szRequestMethod, "REQUEST_METHOD=%s", cParms->hInfo->szMethod);
   sprintf(szScriptName, "SCRIPT_NAME=%s", cParms->hInfo->szUri);
@@ -157,8 +159,11 @@ int ExecCgi(Cgi* cParms) {
   {
     fprintf(stderr, "cParms->szArgs: %s\n", szArgs[0]);
     fprintf(stderr, "cParms->szArgs: %s\n", szArgs[1]);
-    execve(cParms->szProg, szArgs, szEnvs);
+    close(pIn[1]);
+    close(pOut[0]);
+    execve(cParms->szProg , szArgs, szEnvs);
   }
+//  close(pOut[0]);
   waitpid(-1, &status, 0);
   fprintf(stderr, "status: %d\n", status);
 
@@ -170,10 +175,12 @@ int ExecCgi(Cgi* cParms) {
     fpPost = fopen(cParms->szPost, "rb");
     iNum   = 1;
     while (iNum > 0) {
-      fprintf(stderr, "szBuf: %s\n", szBuf);
+      fprintf(stderr, "szBuf___: %s\n", szBuf);
       iNum = fread(szBuf, sizeof(char), SMALLBUF, fpPost);
+      
       fwrite(szBuf, sizeof(char), iNum, fpout);
     }
+    std::cerr << "fclose(fpPost);" << std::endl;
     fclose(fpPost);
   }
   fclose(fpout);
@@ -186,7 +193,7 @@ int ExecCgi(Cgi* cParms) {
   fprintf(stderr, "szBuf: %s\n", szBuf);
   // Grab all of the output from the child.
   while ((iNum = fread(szBuf, sizeof(char), SMALLBUF, fpin)) != 0) {
-    fprintf(stderr, "szBuf: %s\n", szBuf);
+    fprintf(stderr, "szBuf__2: %s\n", szBuf);
     ofOut.write(szBuf, iNum);
   }
   fprintf(stderr, "while owari\n");

@@ -15,6 +15,7 @@ tmp/*/*.html
 tmp/*/*.txt
 tmp/*/*.ft
 *.log
-src/server1.1/delete/*.html
+src/server1.1/delete/*
 src/server1.1/cgi-bin/*
 !.gitkeep
+sand
