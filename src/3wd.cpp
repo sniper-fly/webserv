@@ -60,8 +60,7 @@ sem_t* g_logSem;
 sem_t* g_cgiSem;
 
 int main(int argc, char* argv[]) {
-  int iPort = WWW_PORT;
-  int i, iRc;
+  int iRc;
 
   // init
   sem_unlink("/webserv_log");
@@ -77,22 +76,15 @@ int main(int argc, char* argv[]) {
   }
   InitCgi();
 
-  i = 1;
-  while (i < argc) // Check the command line args
-  {
-    if (strcmp(argv[i], "-p") == 0) {
-      // Set the port to user requested
-      sPort = (short)atoi(argv[i + 1]);
-      i += 2;
-    } else // Unknown arg, ignore it
-    {
-      std::cerr << "Unknown argument \"" << argv[i] << "\" ignored."
-                << std::endl;
-      i++;
-    }
+  if (argc > 2 && strcmp(argv[1], "-p") == 0) {
+    // Set the port to user requested
+    sPort = (short)atoi(argv[2]);
   }
-
-  std::cerr << "3wd> Starting server on port number " << iPort << "."
+  if (sPort < 1024){
+    std::cerr << "[ERROR] sPort(" << sPort << ") should set 1024- . Exiting." << std::endl;
+    return 1;
+  }
+  std::cerr << "3wd> Starting server on port number " << sPort << "."
             << std::endl;
 
   //   signal(SIGABRT, (_SigFunc)Stop);
