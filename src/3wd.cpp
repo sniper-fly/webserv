@@ -118,8 +118,12 @@ void Server() {
     return;
   }
 
-  sSock.Passive(sPort, REUSE_PORT); // Go to passive mode
-
+  iRc = sSock.Passive(sPort, REUSE_PORT); // Go to passive mode
+  if (iRc < 0){
+    std::cerr << "Error." << std::endl;
+    std::cerr << "Cannot passive socket." << std::endl;
+    return;
+  }
   for (;;) // Forever
   {
     sClient = sSock.Accept(); // Listen for incoming connections
