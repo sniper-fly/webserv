@@ -5,6 +5,8 @@
 namespace ft
 {
   char* strlwr(char* str) {
+    if (!str)
+      return NULL;
     int i = 0;
     while (str[i]) {
       str[i] = tolower(str[i]);

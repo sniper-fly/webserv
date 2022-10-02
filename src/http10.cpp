@@ -64,6 +64,19 @@ int FindType(char* szPath) {
 // by checking against the aliases.
 //
 
+/*
+1. localhost:8000/ とか localhost:8000 (これはどうせszUri == "/"でくる)
+の場合は、ルートパス = "./" を返す
+
+2. localhost:8000/src/a/b/c
+                 ~~~~
+first componentが、pAliathPathと合致した場合、
+パス = "./src/a/b/c"を返す
+
+3. 合致しない場合
+GETの場合NULLを返し、404に進む。
+それ以外は使用しない。
+*/
 char* ResolvePath(char* szUri) {
   int   i;
   char *szRest, *szRoot;
@@ -72,12 +85,13 @@ char* ResolvePath(char* szUri) {
   fprintf(stderr, "start ResolvePath\n");
   if (strcmp(szUri, "/") == 0) // They asked for the root directory doc.
   {
-    szRoot = strdup(szServerRoot);
+    szRoot = strdup(szServerRoot); // szRoot == "./"
     fprintf(stderr, "szRoot: %s\n", szRoot);
     return szRoot;
   }
 
   fprintf(stderr, "szUri: %s\n", szUri);
+
   // Now isolate the first component of the requested path.
   szRest = szUri;
   szRoot = new char[PATH_LENGTH];
@@ -92,6 +106,11 @@ char* ResolvePath(char* szUri) {
   }
 
   // Now we have the first component.
+  /*
+  URI = "\a\b\c"
+         ~~ first component
+  szRoot == "/a"
+  */
   szRoot[i] = '\0';
   if (*szRest != '\0')
     szRest++; // Advance past the '/'.
@@ -103,13 +122,16 @@ char* ResolvePath(char* szUri) {
     if (ft::stricmp(szRoot, pAliasPath[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasPath[i].szTrue, szRest);
+      std::cerr << "[ResolvePath] AliasesMathed. szRoot=" << pAliasPath[i].szTrue << " + " << szRest << std::endl;
       bFound = true;
       break;
     }
   }
 
-  if (bFound == true)
+  if (bFound == true){
+    std::cerr << "[ResolvePath] szRoot:" << szRoot << std::endl;
     return (szRoot); // Found.
+  }
 
   // Give them a path based on the default root.
   if (*szRest == '\0') {

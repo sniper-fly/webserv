@@ -77,6 +77,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
     return bPersistent;
   }
 
+  // [!] not implement query
   // Check for a query in the URI.
   if ((szTmp = strchr(szUri, '?')) != NULL) {
     // Break up the URI into document and and search parameters.
@@ -93,6 +94,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   hInfo->szMethod = strdup(szMethod); // Save a few items.
   hInfo->szUri    = strdup(szUri);
   hInfo->szVer    = strdup(HTTP_1_1);
+  // szPath==NULL && GETなら、404errorに進む
   szPath          = ResolvePath(szUri); // Check for path match.
   szCgi           = ResolveExec(szUri); // Check for exec match.
 
@@ -221,7 +223,6 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     strcpy(szPath, szFile);
   }
 
-  fprintf(stderr, "szPath: %s\n", szPath);
   iRc = stat(szPath, &sBuf);
   if (iRc < 0) {
     iRsp = SendError(
@@ -342,17 +343,14 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
 int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
-  char *        szTmp, *szVal, *szPtr, szBuf[SMALLBUF], *szFile;
+  char *        szTmp, *szVal, *szPtr = NULL, szBuf[SMALLBUF], *szFile;
   int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount;
   Cgi*          cParms;
   std::ofstream ofOut;
   std::ifstream ifIn;
 
   (void)szSearch;
-
-  fprintf(stderr, "szPath: %s\n", szPath);
   iRc = CheckAuth(szPath, hInfo, READ_ACCESS); // Check for authorization.
-  fprintf(stderr, "iRc   : %d\n", iRc);
   if (iRc == ACCESS_DENIED)                    // Send request for credentials.
   {
     sClient->Send("HTTP/1.1 401 \r\n");
@@ -396,7 +394,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
 
   iRc = stat(szPath, &sBuf);
-  fprintf(stderr, "iRc   : %d\n", iRc);
   if (iRc < 0) {
     iRsp = SendError(
         sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
@@ -441,29 +438,31 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   cParms->hInfo   = hInfo;
   cParms->sClient = sClient;
   cParms->szProg  = szPath;
+
   if (iMethod == POST) {
     // Grab the posted data.
     cParms->szOutput = NULL;
     szFile = MakeUnique((char *)"tmp/tmpExec/", (char *)"txt");
     ft::strlwr(hInfo->szContentType);
-    szPtr = strstr(hInfo->szContentType, "text/");
+    // hInfo->szContentType == NULLのとき
+    // (クライアントからContent-Typeの指定がない場合、strstr()で落ちる)
+    if (hInfo->szContentType){
+      szPtr = strstr(hInfo->szContentType, "text/");
+    }
     if (szPtr != NULL) // Receiving text data.
     {
       ofOut.open(szFile);
       iCount = 0;
       // Get the specified number of bytes.
-      std::cerr << "[DoExec11] hInfo->ulContentLength:" << hInfo->ulContentLength << std::endl;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
         iCount += i;
-        std::cerr << "[DoExec11] iCount:" << iCount << std::endl;
         // Remove the end of line.
         while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
         {
           sClient->szOutBuf[i] = '\0';
           i--;
         }
-        std::cerr << "sClient->szOutBuf: " << sClient->szOutBuf << std::endl;
         ofOut << sClient->szOutBuf << std::endl; // Write to temp file.
       }
     } else // Binary data.
@@ -479,10 +478,8 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     ofOut.close();
     cParms->szPost = szFile;
   }
-  std::cerr << "[DoExec11] pre ExecCgi" << std::endl;
   cParms->debug();
   ExecCgi(cParms); // Run the cgi program.
-  std::cerr << "[DoExec11] aft ExecCgi" << std::endl;
   cParms->debug();
   stat(cParms->szOutput, &sBuf);
   ifIn.open(cParms->szOutput); // Open the output file.
@@ -539,13 +536,11 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
   sprintf(szBuf, "Content-Length: %ld\r\n\r\n", (long)sBuf.st_size - iCount);
   sClient->Send(szBuf);
-  fprintf(stderr, "szBuf   : %s\n", szBuf);
   if (iMethod != HEAD) // Only send the entity if not HEAD.
   {
     hInfo->ulContentLength = sBuf.st_size - iCount;
     ifIn.open(cParms->szOutput, std::ios::binary);
     ifIn.seekg(iCount, std::ios::beg);
-    fprintf(stderr, "cParms->szOutput: %s\n", cParms->szOutput);
     while (!ifIn.eof()) {
       ifIn.read(szBuf, SMALLBUF);
       i = ifIn.gcount();

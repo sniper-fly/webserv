@@ -276,7 +276,7 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
           if (iErr < 1) {              // Error occured.
             return -1;
           }
-          // message length = recv()
+          // iErr: recv length
           iErr = recv(iSock, szBuf1, (MAX_SOCK_BUFFER) / 2,
               0); // sockfd, buf, len, flags
           if (iErr < 1) {
