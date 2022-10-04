@@ -83,6 +83,8 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
 
   // [!] not implement query
   // Check for a query in the URI.
+
+  // クエリストリングは、値はいれるが後続で処理をしない
   if ((szTmp = strchr(szUri, '?')) != NULL) {
     // Break up the URI into document and and search parameters.
     *szTmp = '\0'; // Append NULL to shorter URI.
@@ -101,7 +103,8 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // szPath==NULL && GETなら、404errorに進む
   szPath          = ResolvePath(szUri); // Check for path match.
   szCgi           = ResolveExec(szUri); // Check for exec match.
-
+  if (szPath) std::cerr << "[DoHttp11] szPath=" << szPath << std::endl;
+  if (szCgi) std::cerr << "[DoHttp11] szCgi=" << szCgi << std::endl;
   hInfo->debug();
   // ulContentLengthの長さで制限
   if (hInfo->ulContentLength > SMALLBUF){
@@ -116,13 +119,13 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   }
   // Now key on the request method and URI given.
   // Any POST request.
-  if (iMethod == POST) {
+  if (iMethod == POST && szCgi) {
     // szCgi == NULLのとき落ちる
     // どうあるべき？
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
-  else if ((bCgi == true) && (iMethod == GET))
+  else if ((bCgi == true) && (iMethod == GET)  && szCgi)
   {
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
@@ -176,8 +179,10 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
 
 int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
+  (void)szSearch;
   struct stat   sBuf;
-  char *        szTmp, szBuf[PATH_LENGTH], szFile[PATH_LENGTH];
+  char          *szTmp, szBuf[PATH_LENGTH];
+  //char          *szFile[PATH_LENGTH];
   std::ofstream ofTmp;
   int iRsp = 200, iRc, iType, iIfMod, iIfUnmod, iIfMatch, iIfNone, iIfRange,
       iRangeErr;
@@ -229,6 +234,8 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     return 403;
   }
 
+  // クエリストリングは処理しない
+  /*
   if (szSearch != NULL) // Do an index search.
   {
     iRc = Index(szPath, szSearch, szFile, hInfo->szUri);
@@ -239,6 +246,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     }
     strcpy(szPath, szFile);
   }
+  */
 
   iRc = stat(szPath, &sBuf);
   if (iRc < 0) {
@@ -317,6 +325,7 @@ int DoPath11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     return iRsp; // Don't send anything else.
   }
 
+  // クエリストリングを処理しない
   if (szSearch != NULL) // Force search results to text/html type.
   {
     iType = FindType((char*)"x.html");

@@ -51,6 +51,10 @@
   </p>
   
 </form>
+<li>[505 ERROR] curl --http1.0 localhost:8000 </li>
+<li>[POST CGI] curl -H "Content-Type: plain/text" --data "key=val&key2=val2" localhost:8000/cgi-bin/hello.cgi --verbose</li>
+<li>[GET CGI] curl localhost:8000/cgi-bin/hello.cgi?key=val --verbose</li>
+<li><a href="?aaa=bb&c=d">[GET 400] http://localhost:8000/?aaa=bb&c=d</a></li>
 </ul>
 
 <hr>
