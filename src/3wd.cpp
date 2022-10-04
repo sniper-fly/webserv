@@ -127,7 +127,6 @@ void Server() {
   for (;;) // Forever
   {
     sClient = sSock.Accept(); // Listen for incoming connections
-    std::cerr << sClient->iSock << " Accepted" << std::endl;
     if (sClient == NULL) {
       continue;
     }
@@ -150,7 +149,6 @@ void Server() {
 //
 
 void W3Conn(void* arg) {
-  std::cerr << "Start W3Conn" << std::endl;
   Socket* sClient;
   char *  szRequest, *szUri, *szVer;
   int     iRc;
@@ -170,9 +168,8 @@ void W3Conn(void* arg) {
 
   // Parse the components of the request
   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
-
   if (ft::stricmp(szVer, "http/1.1") == 0)
-  { // TODO 毎回 http 1.1かどうかcheckしない？
+  {
     iRc = DoHttp11(sClient, szRequest, szUri);
     while (iRc == true) // Do persistent connections.
     {
@@ -183,7 +180,13 @@ void W3Conn(void* arg) {
     }
   } else // Treat this request as a HTTP/0.9 request.
   {
-    std::cerr << "unknown http version" << std::endl; // TODO
+    Headers* hInfo = new Headers();
+    SendError(sClient,
+        (char*)"HTTP Version Not Supported.", 505,
+        (char*)HTTP_1_1, hInfo);
+    char *szReq = strdup(sClient->szOutBuf); // Save the request line.
+    DeHexify(szReq);
+    delete[] szReq;
   }
   delete[] szRequest;
   delete[] szUri;
