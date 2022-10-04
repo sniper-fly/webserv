@@ -60,57 +60,14 @@ char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
 //
 
 int ExecCgi(Cgi* cParms) {
-  int           pIn[2], pOut[2], iNum; //, iRc;
-  FILE *        fpin, *fpout;
-  FILE*         fpPost;
+  int           fds[2]; //, iRc;
   char          szBuf[SMALLBUF], *szArgs[2];
-  int           stdin_save = -1, stdout_save = -1;
-  int           hfStdin = STDIN, hfStdout = STDOUT;
   std::ofstream ofOut;
 
   // Lock all the other threads out.
   sem_wait(g_cgiSem);
 
-  // _setmode(STDIN, O_BINARY); // Binary mode for stdin/stdout.
-  // _setmode(STDOUT, O_BINARY);
-
-  // DosDupHandle(STDIN, (PHFILE)&stdin_save);
-  // DosDupHandle(STDOUT, (PHFILE)&stdout_save);
-  stdin_save = dup(STDIN);
-  stdout_save = dup(STDOUT);
-
-  // DosCreatePipe((PHFILE) & (pIn[0]), (PHFILE) & (pIn[1]), 4096); // Create the pipe
-  // DosCreatePipe((PHFILE) & (pOut[0]), (PHFILE) & (pOut[1]), 4096);
-  pipe(pIn);
-  pipe(pOut);
-
-  // DosSetFHState(pIn[0], OPEN_FLAGS_NOINHERIT); // Child does not inherit
-  // DosSetFHState(pIn[1], OPEN_FLAGS_NOINHERIT);
-  // DosSetFHState(pOut[0], OPEN_FLAGS_NOINHERIT);
-  // DosSetFHState(pOut[1], OPEN_FLAGS_NOINHERIT);
-
-  // _setmode(pIn[0], O_BINARY); // Binary mode on the pipes
-  // _setmode(pOut[1], O_BINARY);
-  // _setmode(pIn[0], O_BINARY); // Binary mode on the pipes
-  // _setmode(pOut[1], O_BINARY);
-
-  fprintf(stderr, "kokomade OK 0\n");
-  // 標準入力がfpoutに書かれる
-  fpout = fdopen(pIn[1], "w"); // create FILE handle
-  dup2(pIn[0], hfStdin);
-  close(pIn[0]); // close the read handle
-
-  // 標準出力がfpinに読まれる
-  fpin = fdopen(pOut[0], "r"); // create FILE handle
-  dup2(pOut[1], hfStdout);
-  close(pOut[1]); // close the write handle
-  std::cerr << "[ExecCgi]" << " pIn[0]:0" << " fpout(pIn[1]):" << pIn[1] << " fpin(pOut[0]):" << pOut[0] << " pOut[1]:1" << std::endl;
-
-  setbuf(fpin, NULL); // Turn buffering off.
-  setbuf(fpout, NULL);
-
   // Setting the environment variables.
-  fprintf(stderr, "kokomade OK 1\n");
   sprintf(szServerProtocol, "SERVER_PROTOCOL=%s", cParms->hInfo->szVer);
   sprintf(szRequestMethod, "REQUEST_METHOD=%s", cParms->hInfo->szMethod);
   sprintf(szScriptName, "SCRIPT_NAME=%s", cParms->hInfo->szUri);
@@ -149,64 +106,67 @@ int ExecCgi(Cgi* cParms) {
   }
   szArgs[0] = cParms->szProg; // The program to run.
   szArgs[1] = NULL;
-  // Start it.
-  // _spawnvpe(P_NOWAIT, cParms->szProg, szArgs, szEnvs);
 
-  fprintf(stderr, "cParms->szProg: %s\n", cParms->szProg);
+  // pipeは、自分のプロセスへの読み取りと書き込み用のファイルディスクリプタを返してくれる。
+  // fds[0]はread fds[1]はwrite
+  pipe(fds);
+  // Start it.
   int   status;
   pid_t pid = fork();
   if (pid == 0)
   {
-    fprintf(stderr, "cParms->szArgs: %s\n", szArgs[0]);
-    fprintf(stderr, "cParms->szArgs: %s\n", szArgs[1]);
-    close(pIn[1]);
-    close(pOut[0]);
-    execve(cParms->szProg , szArgs, szEnvs);
+    // 子プロセスの場合
+
+    // pipeで作成したファイルディスクリプタはforkした場合、そのまま子プロセスに複製される。
+    // これにより、子プロセスで書き込み用ファイルディスクリプタに書いて、親プロセスで読み取り用のファイルディスクリプタを読むことでやりとりが可能。
+
+    // 子プロセスではread用のファイルディスクリプタは使わないのでクローズする。
+    close(fds[0]);
+    // もともとの標準出力は使わないのでクローズ。
+    close(STDOUT_FILENO);
+    // 標準出力にpipeで作った書き込み用ファイルディスクリプタを割り当てる
+    dup2(fds[1], STDOUT_FILENO);
+
+    execve(cParms->szProg, szArgs, szEnvs);
   }
-//  close(pOut[0]);
+  // 親プロセスは、write用のファイルディスクリプタは使わないのでクローズする。
+  close(fds[1]);
+  // 子プロセスの終了を待つ
   waitpid(-1, &status, 0);
-  fprintf(stderr, "status: %d\n", status);
+  // 子プロセスが書き出した結果を読み込む
+  read(fds[0], szBuf, SMALLBUF);
 
-  dup2(stdin_save, hfStdin); // Restore stdin/stdout
-  dup2(stdout_save, hfStdout);
+  std::cerr << "[ExecCGI] szBuf=" << szBuf << std::endl;
 
+  // POSTのBodyはどうせ読まない
+/*
   if (cParms->szPost != NULL) // Use POST method.
   {
     fpPost = fopen(cParms->szPost, "rb");
     iNum   = 1;
     while (iNum > 0) {
-      fprintf(stderr, "szBuf___: %s\n", szBuf);
       iNum = fread(szBuf, sizeof(char), SMALLBUF, fpPost);
-      
       fwrite(szBuf, sizeof(char), iNum, fpout);
     }
-    std::cerr << "fclose(fpPost);" << std::endl;
     fclose(fpPost);
   }
   fclose(fpout);
-
-  // cParms->szOutput = new char[L_tmpnam]; // Create a temporary file for
-  // tmpnam(cParms->szOutput);              // the output.
-  cParms->szOutput = MakeUnique((char *)"tmp/tmpCgi/", (char *)"ft");
+*/
+  cParms->szOutput = MakeUnique((char *)"tmp/tmpCgi/", (char *)"txt");
   ofOut.open(cParms->szOutput, std::ios::binary);
-  fprintf(stderr, "cParms->szOutput: %s\n", cParms->szOutput);
-  fprintf(stderr, "szBuf: %s\n", szBuf);
+  ofOut << szBuf;
   // Grab all of the output from the child.
-  while ((iNum = fread(szBuf, sizeof(char), SMALLBUF, fpin)) != 0) {
-    fprintf(stderr, "szBuf__2: %s\n", szBuf);
+/*
+  while ((iNum = read(szBuf, sizeof(char), SMALLBUF, fpin)) != 0) {
     ofOut.write(szBuf, iNum);
   }
-  fprintf(stderr, "while owari\n");
+*/
   ofOut.close();
-  fprintf(stderr, "closed\n");
+
   delete[] szQueryString;
-  fprintf(stderr, "deleted\n");
-  fclose(fpin);
-  fprintf(stderr, "fclose(fpin)\n");
 
   // Unlock cgi access.
   sem_post(g_cgiSem);
-  fprintf(stderr, "kokomade kita\n");
   return (0);
 }
 

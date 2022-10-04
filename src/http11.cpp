@@ -102,6 +102,8 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // Now key on the request method and URI given.
   // Any POST request.
   if (iMethod == POST) {
+    // szCgi == NULLのとき落ちる
+    // どうあるべき？
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
@@ -478,7 +480,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     ofOut.close();
     cParms->szPost = szFile;
   }
-  cParms->debug();
   ExecCgi(cParms); // Run the cgi program.
   cParms->debug();
   stat(cParms->szOutput, &sBuf);
@@ -551,10 +552,11 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     hInfo->ulContentLength = 0;
   }
   // Remove the temporary files and memory.
-  unlink(cParms->szOutput);
+//  unlink(cParms->szOutput);
   delete[](cParms->szOutput);
-  if (cParms->szPost != NULL)
-    unlink(cParms->szPost);
+  if (cParms->szPost != NULL){
+//    unlink(cParms->szPost);
+  }
   delete cParms;
 
   return iRsp;
