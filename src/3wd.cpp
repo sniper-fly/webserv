@@ -167,7 +167,6 @@ void W3Conn(void* arg) {
   szVer     = new char[SMALLBUF];
 
   iRc = sClient->RecvTeol(NO_EOL); // Get the message
-  sClient->debug();
 
   // Parse the components of the request
   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
@@ -179,9 +178,7 @@ void W3Conn(void* arg) {
     {
       sClient->RecvTeol(NO_EOL);
       if (sClient->iErr == 0) continue;
-      // sClient->debug();
       sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);
-      sClient->debug();
       iRc = DoHttp11(sClient, szRequest, szUri);
     }
   } else // Treat this request as a HTTP/0.9 request.

@@ -59,6 +59,7 @@ char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
 // stream for all of our threads.
 //
 
+// https://www.tohuandkonsome.site/entry/2020/01/04/172537
 int ExecCgi(Cgi* cParms) {
   int           fds[2]; //, iRc;
   char          szBuf[SMALLBUF], *szArgs[2];

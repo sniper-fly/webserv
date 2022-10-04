@@ -31,7 +31,7 @@
 #include "util.hpp"
 #include "ftutil.hpp"
 
-
+#define SMALLBUF 4196
 // ------------------------------------------------------------------
 
 // The alphabet used for MIME boundaries.
@@ -48,6 +48,9 @@ const int iNumMime = strlen(szMime);
 //
 
 int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
+
+  sClient->debug();
+
   int      iRc, iRsp, iMethod;
   char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
   Headers* hInfo;
@@ -65,6 +68,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
 
   bPersistent = hInfo->bPersistent;    // Find out if close was requested.
   iRc         = hInfo->CheckHeaders(); // Make sure none are inconsistent.
+
   if (iRc == false)                    // Bad request.
   {
     iRsp = SendError(sClient,
@@ -99,6 +103,17 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   szCgi           = ResolveExec(szUri); // Check for exec match.
 
   hInfo->debug();
+  // ulContentLengthの長さで制限
+  if (hInfo->ulContentLength > SMALLBUF){
+    iRsp = SendError(sClient,
+        (char*)"Too long body.", 400,
+        (char*)HTTP_1_1, hInfo);
+    DeHexify(szReq);
+    WriteToLog(sClient, szReq, iRsp, hInfo->ulContentLength);
+    delete[] szReq;
+    delete hInfo;
+    return bPersistent;
+  }
   // Now key on the request method and URI given.
   // Any POST request.
   if (iMethod == POST) {
@@ -346,7 +361,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     Headers* hInfo) {
   struct stat   sBuf;
   char *        szTmp, *szVal, *szPtr = NULL, szBuf[SMALLBUF], *szFile;
-  int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount;
+  int           iRsp = 200, iRc, iIfUnmod, iIfMatch, iIfNone, i, iCount = 0;
   Cgi*          cParms;
   std::ofstream ofOut;
   std::ifstream ifIn;
@@ -454,7 +469,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     if (szPtr != NULL) // Receiving text data.
     {
       ofOut.open(szFile);
-      iCount = 0;
       // Get the specified number of bytes.
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
@@ -470,7 +484,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     } else // Binary data.
     {
       ofOut.open(szFile, std::ios::binary); // Open in binary mode.
-      iCount = 0;
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->Recv(hInfo->ulContentLength - iCount);
         iCount += i;

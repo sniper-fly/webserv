@@ -82,16 +82,11 @@ char* ResolvePath(char* szUri) {
   char *szRest, *szRoot;
   bool  bFound = false;
 
-  fprintf(stderr, "start ResolvePath\n");
   if (strcmp(szUri, "/") == 0) // They asked for the root directory doc.
   {
     szRoot = strdup(szServerRoot); // szRoot == "./"
-    fprintf(stderr, "szRoot: %s\n", szRoot);
     return szRoot;
   }
-
-  fprintf(stderr, "szUri: %s\n", szUri);
-
   // Now isolate the first component of the requested path.
   szRest = szUri;
   szRoot = new char[PATH_LENGTH];
@@ -118,18 +113,15 @@ char* ResolvePath(char* szUri) {
   // Compare it to our list of aliases.
   for (i = 0; i < iNumPathAliases; i++) {
     // Case insensitive comparison.
-    fprintf(stderr, "pAliathPath: %s\n", pAliasPath[i].szAlias);
     if (ft::stricmp(szRoot, pAliasPath[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasPath[i].szTrue, szRest);
-      std::cerr << "[ResolvePath] AliasesMathed. szRoot=" << pAliasPath[i].szTrue << " + " << szRest << std::endl;
       bFound = true;
       break;
     }
   }
 
   if (bFound == true){
-    std::cerr << "[ResolvePath] szRoot:" << szRoot << std::endl;
     return (szRoot); // Found.
   }
 
@@ -142,7 +134,6 @@ char* ResolvePath(char* szUri) {
     }
     memset(szRoot, 0, PATH_LENGTH);
     sprintf(szRoot, "%s%s", szServerRoot, szRest);
-    fprintf(stderr, "szRoot: %s\n", szRoot);
     return (szRoot);
   }
 
@@ -179,7 +170,6 @@ char* ResolveExec(char* szUri) {
 
   // Compare to the list of exec path aliases.
   for (i = 0; i < iNumExecAliases; i++) {
-     fprintf(stderr, "pExecAliath: %s\n", pAliasExec[i].szAlias);
     if (ft::stricmp(szRoot, pAliasExec[i].szAlias) == 0) {
       memset(szRoot, 0, PATH_LENGTH);
       sprintf(szRoot, "%s%s", pAliasExec[i].szTrue, szRest);
@@ -246,6 +236,9 @@ int SendError(
     sClient->Send("\r\n");
   }
   unlink(szTmp); // Get rid of it.
+
+  // エラー時に、recvTeol()のし直しフラグを立てる
+  sClient->iErr = 0;
   return iCode;
 }
 
