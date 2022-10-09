@@ -83,7 +83,10 @@ int ReadConfig(char* szConfigName) {
   eExtMap             = new Extensions[MAX_EXTENSIONS];
   eExtMap[0].szExt    = new char[1];
   eExtMap[0].szExt[0] = '\0';
-  eExtMap[0].szType   = strdup("application/octet-stream");
+  if (eExtMap[0].szType){
+    delete[] eExtMap[0].szType;
+  }
+  ft::strdup(&eExtMap[0].szType, "application/octet-stream");
 
   while (! ifIn.eof()) // Until the end of the file.
   {
@@ -241,8 +244,8 @@ void SetDefaults() {
   sPort         = WWW_PORT;
   bDnsLookup    = true;
   bGmtTime      = false;
-  szReadAccess  = strdup(HTREADACCESS);
-  szWriteAccess = strdup(HTWRITEACCESS);
+  ft::strdup(&szReadAccess, HTREADACCESS);
+  ft::strdup(&szWriteAccess, HTWRITEACCESS);
 }
 
 // ------------------------------------------------------------------

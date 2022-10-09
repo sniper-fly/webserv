@@ -189,7 +189,8 @@ void W3Conn(void* arg) {
     SendError(sClient,
         (char*)"HTTP Version Not Supported.", 505,
         (char*)HTTP_1_1, hInfo);
-    char *szReq = strdup(sClient->szOutBuf); // Save the request line.
+    char *szReq = new char[strlen(sClient->szOutBuf) + 1]; // Save the request line.
+    strcpy(szReq, sClient->szOutBuf);
     DeHexify(szReq);
     delete[] szReq;
   }

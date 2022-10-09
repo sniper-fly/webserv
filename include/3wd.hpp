@@ -26,8 +26,6 @@ void  W3Conn(void*);
 void  Server();
 char* DeHexify(char*);
 char  Hex2Char(char);
-int   Index(char*, char*, char*, char*);
-void  DoHttp09(Socket*, char*, char*);
 
 // ------------------------------------------------------------------
 //

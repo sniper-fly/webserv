@@ -1,7 +1,8 @@
 #include <cctype>
 #include <string>
 #include <fstream>
-
+#include <string.h>
+#include "3wd.hpp"
 namespace ft
 {
   char* strlwr(char* str) {
@@ -27,4 +28,28 @@ namespace ft
     std::ofstream dst(to, std::ios::binary);
     dst << src.rdbuf();
   }
+
+  char* strdup(const char *str){
+    if (str == NULL)
+      return NULL;
+    size_t len = strlen(str);
+    char *ret;
+    ret = new char[len + 1];
+    strcpy(ret, str);
+    return ret;
+  }
+
+  void strdup(char **org, const char *str){
+    if (*org){
+      delete[] *org;
+      *org = NULL;
+    }
+    if (str == NULL)
+      return ;
+    size_t len = strlen(str);
+    *org = new char[len + 1];
+    strcpy(*org, str);
+    return ;
+  }
+
 } // namespace ft
