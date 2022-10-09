@@ -37,6 +37,7 @@
 #include "util.hpp"
 #include "ftutil.hpp"
 #include "cgi.hpp"
+#include "test.hpp"
 
 // ------------------------------------------------------------------
 
@@ -61,6 +62,10 @@ sem_t* g_cgiSem;
 
 int main(int argc, char* argv[]) {
   int iRc;
+  if (TEST()){
+    std::cerr << "[main] TEST failed" << std::endl;
+    return 0;
+  }
 
   // init
   sem_unlink("/webserv_log");
@@ -308,7 +313,7 @@ char Hex2Char(char c) {
     case 'f':
       return 15;
     default:
-      return c;
+      return c - '0';
   }
 }
 

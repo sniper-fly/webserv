@@ -61,6 +61,7 @@ int ReadConfig(char* szConfigName) {
   std::ifstream ifIn; // The config file handle.
   char *        szBuf, *szDirective, *szVal1, *szVal2;
   int           iNum1 = 0, iNum2 = 0, iNum3 = 1, i;
+  int ret = 0;
 
   ifIn.open(szConfigName);
   if (! ifIn) {
@@ -88,9 +89,9 @@ int ReadConfig(char* szConfigName) {
   {
     memset(szBuf, 0, SMALLBUF);
     memset(szDirective, 0, SMALLBUF);
+    // 改行==\r\n なので、\rまで読み取る
     ifIn.getline(szBuf, SMALLBUF, '\n');
-
-    if ((szBuf[0] == '#') || (szBuf[0] == '\0'))
+    if ((szBuf[0] == '#') || (szBuf[0] == '\0') || (szBuf[0] == '\r'))
       continue; // Skip comments.
 
     sscanf(szBuf, "%s %s %s", szDirective, szVal1, szVal2); // Parse the line.
@@ -202,6 +203,10 @@ int ReadConfig(char* szConfigName) {
 
       iNum3++;
     }
+    else{
+      std::cerr << "[ReadConfig] szBuf(" << szBuf << ") is invalid config format" << std::endl;
+      ret = 1;
+    }
   }
 
   ifIn.close();
@@ -221,7 +226,7 @@ int ReadConfig(char* szConfigName) {
     }
   }
 
-  return 0;
+  return ret;
 }
 
 // ------------------------------------------------------------------

@@ -574,10 +574,11 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     hInfo->ulContentLength = 0;
   }
   // Remove the temporary files and memory.
-//  unlink(cParms->szOutput);
+  unlink(cParms->szOutput);
   delete[](cParms->szOutput);
   if (cParms->szPost != NULL){
-//    unlink(cParms->szPost);
+    unlink(cParms->szPost);
+    delete[](cParms->szPost);
   }
   delete cParms;
 
