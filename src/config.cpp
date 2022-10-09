@@ -107,28 +107,22 @@ int ReadConfig(char* szConfigName) {
         szServerRoot = new char[strlen(szVal1) + 2];
         sprintf(szServerRoot, "%s/", szVal1);
       } else {
-        szServerRoot = strdup(szVal1);
+        ft::strdup(&szServerRoot, szVal1);
       }
     } else if (ft::stricmp(szDirective, "HostName") == 0) {
-      if (szHostName)
-        delete[] szHostName;
-      szHostName = strdup(szVal1);
+      ft::strdup(&szHostName, szVal1);
     } else if (ft::stricmp(szDirective, "GMTOffset") == 0) {
       lGmtOffset = 60 * (atol(szVal1) / 100); // Number of hours in minutes
       lGmtOffset += (atol(szVal1) % 100);     // Number of minutes specified
       lGmtOffset *= 60;                       // Convert minutes to seconds
     } else if (ft::stricmp(szDirective, "Welcome") == 0) {
-      if (szWelcome)
-        delete[] szWelcome;
-      szWelcome = strdup(szVal1);
+      ft::strdup(&szWelcome, szVal1);
     } else if (ft::stricmp(szDirective, "AccessLog") == 0) {
-      if (szAccessLog)
-        delete[] szAccessLog;
-      szAccessLog = strdup(szVal1);
+      ft::strdup(&szAccessLog, szVal1);
     } else if (ft::stricmp(szDirective, "ErrorLog") == 0) {
       if (szErrorLog)
         delete[] szErrorLog;
-      szErrorLog = strdup(szVal1);
+      ft::strdup(&szErrorLog, szVal1);
     } else if (ft::stricmp(szDirective, "DeleteDir") == 0) {
       if (szDeleteDir)
         delete[] szDeleteDir;
@@ -137,7 +131,7 @@ int ReadConfig(char* szConfigName) {
         szDeleteDir = new char[strlen(szVal1) + 2];
         sprintf(szDeleteDir, "%s/", szVal1);
       } else {
-        szDeleteDir = strdup(szVal1);
+        ft::strdup(&szDeleteDir, szVal1);
       }
     } else if (ft::stricmp(szDirective, "Port") == 0) {
       sPort = (short)atoi(szVal1);
@@ -150,20 +144,16 @@ int ReadConfig(char* szConfigName) {
         bGmtTime = true;
       }
     } else if (ft::stricmp(szDirective, "ReadAccessName") == 0) {
-      if (szReadAccess)
-        delete[] szReadAccess;
-      szReadAccess = strdup(szVal1);
+      ft::strdup(&szReadAccess, szVal1);
     } else if (ft::stricmp(szDirective, "WriteAccessName") == 0) {
-      if (szWriteAccess)
-        delete[] szWriteAccess;
-      szWriteAccess = strdup(szVal1);
+      ft::strdup(&szWriteAccess, szVal1);
     } else if (ft::stricmp(szDirective, "PathAlias") == 0) {
       if (iNum1 == MAX_ALIASES) {
         std::cerr << "Exceeded maximum path aliases. " << szVal1 << " ignored."
                   << std::endl;
         continue;
       }
-      pAliasPath[iNum1].szAlias = strdup(szVal1);
+      ft::strdup(&pAliasPath[iNum1].szAlias, szVal1);
       pAliasPath[iNum1].szTrue  = new char[strlen(szVal2) + 2];
       strcpy(pAliasPath[iNum1].szTrue, szVal2);
       Convert(pAliasPath[iNum1].szAlias);
@@ -182,7 +172,7 @@ int ReadConfig(char* szConfigName) {
                   << std::endl;
         continue;
       }
-      pAliasExec[iNum2].szAlias = strdup(szVal1);
+      ft::strdup(&pAliasExec[iNum2].szAlias, szVal1);
       pAliasExec[iNum2].szTrue  = new char[strlen(szVal2) + 2];
       strcpy(pAliasExec[iNum2].szTrue, szVal2);
       Convert(pAliasExec[iNum2].szAlias);
@@ -201,8 +191,8 @@ int ReadConfig(char* szConfigName) {
                   << std::endl;
         continue;
       }
-      eExtMap[iNum3].szExt  = strdup(szVal1);
-      eExtMap[iNum3].szType = strdup(szVal2);
+      ft::strdup(&eExtMap[iNum3].szExt, szVal1);
+      ft::strdup(&eExtMap[iNum3].szType, szVal2);
 
       iNum3++;
     }

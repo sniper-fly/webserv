@@ -148,7 +148,7 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
   }
 
   // bPersistent == false のときNULL
-  szTmpPath = strdup(szPath);
+  ft::strdup(&szTmpPath, szPath);
 
   l = strlen(szTmpPath) - 1;
 
@@ -193,7 +193,7 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
 int CheckFile(char* szFile, Headers* hInfo) {
   std::ifstream ifIn;
   int           iRc = ACCESS_FAILED;
-  char *szType = NULL, *szRealm = NULL, *szUserFile = NULL, *szBuf, *szVal;
+  char *szType = NULL, *szRealm = NULL, *szUserFile = NULL, *szBuf = NULL, *szVal = NULL;
 
   ifIn.open(szFile);
   if (! ifIn) {
@@ -210,13 +210,13 @@ int CheckFile(char* szFile, Headers* hInfo) {
 
     if (strstr(szBuf, "AuthType:") != 0) {
       sscanf(szBuf, "%*s %s", szVal);
-      szType = strdup(szVal);
+      ft::strdup(&szType, szVal);
     } else if (strstr(szBuf, "Realm:") != 0) {
       sscanf(szBuf, "%*s %s", szVal);
-      szRealm = strdup(szVal);
+      ft::strdup(&szRealm, szVal);
     } else if (strstr(szBuf, "AuthUserFile:") != 0) {
       sscanf(szBuf, "%*s %s", szVal);
-      szUserFile = strdup(szVal);
+      ft::strdup(&szUserFile, szVal);
     }
   }
   ifIn.close();
@@ -225,7 +225,7 @@ int CheckFile(char* szFile, Headers* hInfo) {
   {
     if (hInfo->szAuth == NULL) // Ask for credentials
     {
-      hInfo->szRealm = strdup(szRealm); // Return this realm.
+      ft::strdup(&hInfo->szRealm, szRealm); // Return this realm.
       iRc            = ACCESS_DENIED;
     } else // Check their credentials
     {
@@ -299,8 +299,8 @@ int BasicCheck(char* szFile, Headers* hInfo) {
     if ((ft::stricmp(szClientUser, szUser) == 0) &&
         (strcmp(szClientPass, szPass) == 0))
     {
-      hInfo->szAuthType   = strdup("basic");
-      hInfo->szRemoteUser = strdup(szUser);
+      ft::strdup(&hInfo->szAuthType, "basic");
+      ft::strdup(&hInfo->szRemoteUser, szUser);
       bFound              = true;
     }
     memset(szBuf, 0, SMALLBUF);

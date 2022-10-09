@@ -52,15 +52,12 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   sClient->debug();
 
   int      iRc, iRsp, iMethod;
-  char *   szReq, *szPath, *szCgi, *szTmp, *szSearch;
+  char *   szReq = NULL, *szPath = NULL, *szCgi = NULL, *szTmp = NULL, *szSearch = NULL;
   Headers* hInfo;
   bool     bCgi = false, bPersistent;
 
-  szReq    = strdup(sClient->szOutBuf); // Save the request line.
+  szReq    = ft::strdup(sClient->szOutBuf); // Save the request line.
   iRsp     = 200;
-  szSearch = NULL;
-  szPath   = NULL;
-  szCgi    = NULL;
   hInfo    = new Headers();
   iMethod  = CheckMethod(szMethod); // The request method.
 
@@ -89,17 +86,17 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
     // Break up the URI into document and and search parameters.
     *szTmp = '\0'; // Append NULL to shorter URI.
     szTmp++;       // Let szTmp point to the query terms.
-    szSearch       = strdup(szTmp);
-    hInfo->szQuery = strdup(szSearch);
+    ft::strdup(&szSearch, szTmp);
+    ft::strdup(&hInfo->szQuery, szSearch);
     if (strchr(szSearch, '=') != NULL) {
       bCgi = true; // Only a cgi request can contain an equal sign.
     }
   }
 
   DeHexify(szUri);                    // Remove any escape sequences.
-  hInfo->szMethod = strdup(szMethod); // Save a few items.
-  hInfo->szUri    = strdup(szUri);
-  hInfo->szVer    = strdup(HTTP_1_1);
+  ft::strdup(&hInfo->szMethod, szMethod); // Save a few items.
+  ft::strdup(&hInfo->szUri, szUri);
+  ft::strdup(&hInfo->szVer, HTTP_1_1);
   // szPath==NULL && GETなら、404errorに進む
   szPath          = ResolvePath(szUri); // Check for path match.
   szCgi           = ResolveExec(szUri); // Check for exec match.

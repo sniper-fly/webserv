@@ -79,12 +79,12 @@ GETの場合NULLを返し、404に進む。
 */
 char* ResolvePath(char* szUri) {
   int   i;
-  char *szRest, *szRoot;
+  char *szRest = NULL, *szRoot = NULL;
   bool  bFound = false;
 
   if (strcmp(szUri, "/") == 0) // They asked for the root directory doc.
   {
-    szRoot = strdup(szServerRoot); // szRoot == "./"
+    szRoot = ft::strdup(szServerRoot); // szRoot == "./"
     return szRoot;
   }
   // Now isolate the first component of the requested path.

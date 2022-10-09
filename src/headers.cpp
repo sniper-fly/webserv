@@ -75,7 +75,7 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szAccept;
               szAccept = szBuf;
             } else {
-              szAccept = strdup(szTmp);
+              szAccept = ft::strdup(szTmp);
             }
           } else if (strcmp(szHdr, "accept-charset") == 0) {
             if (szAcceptCharset) {
@@ -84,7 +84,7 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szAcceptCharset;
               szAcceptCharset = szBuf;
             } else {
-              szAcceptCharset = strdup(szTmp);
+              szAcceptCharset = ft::strdup(szTmp);
             }
           } else if (strcmp(szHdr, "accept-encoding") == 0) {
             if (szAcceptEncoding) {
@@ -93,7 +93,7 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szAcceptEncoding;
               szAcceptEncoding = szBuf;
             } else {
-              szAcceptEncoding = strdup(szTmp);
+              szAcceptEncoding = ft::strdup(szTmp);
             }
           } else if (strcmp(szHdr, "accept-language") == 0) {
             if (szAcceptLanguage) {
@@ -102,12 +102,12 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szAcceptLanguage;
               szAcceptLanguage = szBuf;
             } else {
-              szAcceptLanguage = strdup(szTmp);
+              szAcceptLanguage = ft::strdup(szTmp);
             }
           } else if (strcmp(szHdr, "authorization") == 0) {
             if (szAuth)
               delete[] szAuth;
-            szAuth = strdup(szTmp);
+            szAuth = ft::strdup(szTmp);
           }
           break;
         }
@@ -116,20 +116,19 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "connection") == 0) {
             if (szConnection)
               delete[] szConnection;
-            szConnection = strdup(szTmp);
+            szConnection = ft::strdup(szTmp);
             if (ft::stricmp(szConnection, "close") == 0) {
-              std::cerr << "close:" << std::endl;
               bPersistent = false;
             }
           } else if (strcmp(szHdr, "content-length") == 0) {
             if (szContentLength)
               delete[] szContentLength;
-            szContentLength = strdup(szTmp);
+            szContentLength = ft::strdup(szTmp);
             ulContentLength = atol(szContentLength);
           } else if (strcmp(szHdr, "content-type") == 0) {
             if (szContentType)
               delete[] szContentType;
-            szContentType = strdup(szTmp);
+            szContentType = ft::strdup(szTmp);
           }
           break;
         }
@@ -138,7 +137,7 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "date") == 0) {
             if (szDate)
               delete[] szDate;
-            szDate = strdup(szTmp);
+            szDate = ft::strdup(szTmp);
           }
           break;
         }
@@ -147,7 +146,7 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "from") == 0) {
             if (szFrom)
               delete[] szFrom;
-            szFrom = strdup(szTmp);
+            szFrom = ft::strdup(szTmp);
           }
           break;
         }
@@ -156,7 +155,7 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "host") == 0) {
             if (szHost)
               delete[] szHost;
-            szHost = strdup(szTmp);
+            szHost = ft::strdup(szTmp);
           }
           break;
         }
@@ -165,7 +164,7 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "if-modified-since") == 0) {
             if (szIfModSince)
               delete[] szIfModSince;
-            szIfModSince = strdup(szTmp);
+            szIfModSince = ft::strdup(szTmp);
             ttIfModSince = ConvertDate(szIfModSince);
           } else if (strcmp(szHdr, "if-match") == 0) {
             if (szIfMatch) {
@@ -174,7 +173,7 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szIfMatch;
               szIfMatch = szBuf;
             } else {
-              szIfMatch = strdup(szTmp);
+              szIfMatch = ft::strdup(szTmp);
             }
           } else if (strcmp(szHdr, "if-none-match") == 0) {
             if (szIfNoneMatch) {
@@ -183,16 +182,16 @@ int Headers::RcvHeaders(Socket* sClient) {
               delete[] szIfNoneMatch;
               szIfNoneMatch = szBuf;
             } else {
-              szIfNoneMatch = strdup(szTmp);
+              szIfNoneMatch = ft::strdup(szTmp);
             }
           } else if (strcmp(szHdr, "if-range") == 0) {
             if (szIfRange)
               delete[] szIfRange;
-            szIfRange = strdup(szTmp);
+            szIfRange = ft::strdup(szTmp);
           } else if (strcmp(szHdr, "if-unmodified-since") == 0) {
             if (szIfUnmodSince)
               delete[] szIfUnmodSince;
-            szIfUnmodSince = strdup(szTmp);
+            szIfUnmodSince = ft::strdup(szTmp);
             ttIfUnmodSince = ConvertDate(szIfUnmodSince);
           }
           break;
@@ -202,11 +201,11 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "range") == 0) {
             if (szRange)
               delete[] szRange;
-            szRange = strdup(szTmp);
+            szRange = ft::strdup(szTmp);
           } else if (strcmp(szHdr, "referer") == 0) {
             if (szReferer)
               delete[] szReferer;
-            szReferer = strdup(szTmp);
+            szReferer = ft::strdup(szTmp);
           }
           break;
         }
@@ -215,7 +214,7 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "transfer-encoding") == 0) {
             if (szTransferEncoding)
               delete[] szTransferEncoding;
-            szTransferEncoding = strdup(szTmp);
+            szTransferEncoding = ft::strdup(szTmp);
             if (ft::stricmp(szTransferEncoding, "chunked") == 0) {
               bChunked = true;
             }
@@ -227,11 +226,11 @@ int Headers::RcvHeaders(Socket* sClient) {
           if (strcmp(szHdr, "upgrade") == 0) {
             if (szUpgrade)
               delete[] szUpgrade;
-            szUpgrade = strdup(szTmp);
+            szUpgrade = ft::strdup(szTmp);
           } else if (strcmp(szHdr, "user-agent") == 0) {
             if (szUserAgent)
               delete[] szUserAgent;
-            szUserAgent = strdup(szTmp);
+            szUserAgent = ft::strdup(szTmp);
           }
           break;
         }
@@ -326,7 +325,7 @@ char** Headers::Etag(char* szTags) {
     if (*szPtr == 'W')
       szPtr += 2; // Bypass weak indicator.
     if (*szPtr == '*') {
-      szEtags[j] = strdup("*"); // Match any.
+      ft::strdup(&szEtags[j], "*"); // Match any.
       break;
     }
     szPtr++; // Advance past the <"> mark.
@@ -338,7 +337,7 @@ char** Headers::Etag(char* szTags) {
     szPtr++;                      // Past the ending <"> mark.
     cTmp       = *szPtr;          // Save character temporarily.
     *szPtr     = '\0';            // Mark end of string of current etag.
-    szEtags[j] = strdup(szStart); // Save it.
+    ft::strdup(&szEtags[j], szStart); // Save it.
     j++;                          // Count it.
     *szPtr = cTmp;                // Restore character.
     while ((*szPtr != ',') && (*szPtr != '\0')) {
