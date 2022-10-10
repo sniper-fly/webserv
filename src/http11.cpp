@@ -547,7 +547,7 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
   }
   ifIn.close();
   if (sBuf.st_size > 2) {
-    iCount += 2; // The last CRLF isn't counted within the loop.
+//    iCount += 2; // The last CRLF isn't counted within the loop.
   }
   sprintf(szBuf, "Content-Length: %ld\r\n\r\n", (long)sBuf.st_size - iCount);
   sClient->Send(szBuf);

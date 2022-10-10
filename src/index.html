@@ -42,14 +42,18 @@
 <li><a href="/src/util.hpp">util.hpp</a></li>
 <li><a href="/src/welcome.html">welcome.html</a></li>
 <form method="post" action="cgi-bin/hello.cgi">
-
   <p><input type="text" name="example" size="30"></p>
-  
   <p>
   <input type="submit" value="submit">
   <input type="reset" value="reset">
   </p>
-  
+</form>
+<form method="post" action="cgi-bin/hello2.cgi">
+  <p><input type="text" name="example" size="30"></p>
+  <p>
+  <input type="submit" value="submit2">
+  <input type="reset" value="reset2">
+  </p>
 </form>
 <li>[505 ERROR] curl --http1.0 localhost:8000 </li>
 <li>[POST CGI] curl -H "Content-Type: plain/text" --data "key=val&key2=val2" localhost:8000/cgi-bin/hello.cgi --verbose</li>
