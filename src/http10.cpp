@@ -136,7 +136,7 @@ char* ResolvePath(char* szUri) {
     sprintf(szRoot, "%s%s", szServerRoot, szRest);
     return (szRoot);
   }
-
+  delete[] szRoot;
   return (NULL);
 }
 

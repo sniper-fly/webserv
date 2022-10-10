@@ -48,9 +48,6 @@ const int iNumMime = strlen(szMime);
 //
 
 int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
-
-  sClient->debug();
-
   int      iRc, iRsp, iMethod;
   char *   szReq = NULL, *szPath = NULL, *szCgi = NULL, *szTmp = NULL, *szSearch = NULL;
   Headers* hInfo;
@@ -100,9 +97,6 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // szPath==NULL && GETなら、404errorに進む
   szPath          = ResolvePath(szUri); // Check for path match.
   szCgi           = ResolveExec(szUri); // Check for exec match.
-  if (szPath) std::cerr << "[DoHttp11] szPath=" << szPath << std::endl;
-  if (szCgi) std::cerr << "[DoHttp11] szCgi=" << szCgi << std::endl;
-  hInfo->debug();
   // ulContentLengthの長さで制限
   if (hInfo->ulContentLength > SMALLBUF){
     iRsp = SendError(sClient,
@@ -155,11 +149,13 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   delete[] szReq;
   delete hInfo;
   if ((szSearch != NULL) && (bCgi == false)) {
-    unlink(szPath); // The temporary search file.
+//    unlink(szPath); // The temporary search file.
     delete[] szSearch;
   }
-  if (szPath)
+  if (szPath){
     delete[] szPath;
+    szPath = NULL;
+    }
   if (szCgi)
     delete[] szCgi;
 
@@ -500,7 +496,6 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     cParms->szPost = szFile;
   }
   ExecCgi(cParms); // Run the cgi program.
-  cParms->debug();
   stat(cParms->szOutput, &sBuf);
   ifIn.open(cParms->szOutput); // Open the output file.
   iCount = 0;

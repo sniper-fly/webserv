@@ -133,12 +133,10 @@ char* CreateDate(time_t ttTime) {
 //
 
 int CheckAuth(char* szPath, Headers* hInfo, int iType) {
-  char *      szTmpPath, *szName;
+  char        *szTmpPath = NULL, *szName = NULL;
   int         l, iRc;
   bool        bNotFound = true;
   struct stat sBuf;
-  if (szPath)
-  std::cerr << "[CheckAuth] szPath:" << szPath << std::endl;
 
   if (iType == READ_ACCESS) // Check for read or write access.
   {

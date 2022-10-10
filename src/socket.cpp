@@ -174,12 +174,9 @@ int Socket::SendBinary(char* szFileName) {
 //
 
 int Socket::Recv(int iBytes) {
-#ifdef __OS2__
-  int fdsSocks[1];
-#elif __WINDOWS__
   fd_set         fdsSocks;
   struct timeval stTimeout;
-#endif
+  int            nfds = 0;
 
   memset(szOutBuf, 0, MAX_SOCK_BUFFER);
 
@@ -210,26 +207,16 @@ int Socket::Recv(int iBytes) {
       iBeg1 += iBytes;
     }
   } else {
-#ifdef __OS2__
-    fdsSocks[0] = iSock;
-    iErr        = select(fdsSocks, 1, 0, 0, ulTimeout * 1000);
-    if (iErr < 1) // Error occured.
-    {
-      return -1;
-    }
-#elif __WINDOWS__
     FD_ZERO(&fdsSocks);
     FD_SET(iSock, &fdsSocks);
+    nfds             = std::max(nfds, iSock);
     stTimeout.tv_sec = ulTimeout;
-    iErr             = select(1, &fdsSocks, 0, 0, &stTimeout);
+    stTimeout.tv_usec = 0;
+    iErr             = select(nfds + 1, &fdsSocks, 0, 0, &stTimeout);
     if (iErr < 1) // Error occured.
     {
       return -1;
     }
-#endif
-    iErr = recv(iSock, szOutBuf, iBytes, 0);
-    if (iErr == 0)
-      return -1;
   }
 
   return iErr;
@@ -250,6 +237,7 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
   int            nfds = 0;
   fd_set         fdsSocks;
   struct timeval stTimeout;
+  FD_ZERO(&fdsSocks);
 
   bzero(szOutBuf, MAX_SOCK_BUFFER);
   while (iState != 0) {
@@ -271,6 +259,7 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
           FD_SET(iSock, &fdsSocks); // fdsSocksにiSockを追加する
           nfds             = std::max(nfds, iSock);
           stTimeout.tv_sec = ulTimeout;
+          stTimeout.tv_usec = 0;
           iErr             = select(nfds + 1, &fdsSocks, NULL, NULL,
               &stTimeout); // max{r,w,e}+1, read, write, ex, time
           if (iErr < 1) {              // Error occured.
@@ -293,6 +282,7 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
             FD_SET(iSock, &fdsSocks);
             nfds             = std::max(nfds, iSock);
             stTimeout.tv_sec = ulTimeout;
+            stTimeout.tv_usec = 0;
             iErr             = select(nfds + 1, &fdsSocks, 0, 0, &stTimeout);
             if (iErr < 1) { // Error occured.
               return -1;

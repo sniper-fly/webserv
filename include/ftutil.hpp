@@ -11,5 +11,6 @@ namespace ft
   char* strdup(const char *);
   // orgをdeleteし、strのnewを入れる
   void strdup(char **org, const char *str);
+  void strjoin(char **org, const char *str);
 } // namespace ft
 #endif

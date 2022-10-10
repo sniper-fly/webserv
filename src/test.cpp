@@ -40,5 +40,21 @@ bool TEST(){
       }
     }
   }
+  {
+    char *a = NULL, *b = NULL;
+    ft::strdup(&a, "abcde");
+    b = ft::strdup("12345");
+    ft::strjoin(&a, b);
+    if (ft::stricmp(a, "abcde12345")){
+      ret = true;
+      std::cerr << "a=" << a << std::endl;
+      std::cerr << "b=" << b << std::endl;
+    }
+    delete[] a;
+    delete[] b;
+  }
+  {
+
+  }
   return ret;
 }
