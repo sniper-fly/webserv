@@ -39,7 +39,7 @@ int   DoPut(Socket*, Headers*, char*, char*);
 int   DoDelete(Socket*, char*, char*, Headers*);
 int   SendError(Socket*, char*, int);
 int   CheckMethod(char*);
-char* MakeUnique(char*, char*);
+char* MakeUnique(const char*, const char*);
 int   IfModSince(Headers*, time_t);
 int   IfUnmodSince(Headers*, time_t);
 int   IfMatch(Headers*, time_t);

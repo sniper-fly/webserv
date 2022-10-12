@@ -138,6 +138,9 @@ int CheckAuth(char* szPath, Headers* hInfo, int iType) {
   bool        bNotFound = true;
   struct stat sBuf;
 
+  if (!szPath){
+    return ACCESS_OK;
+  }
   if (iType == READ_ACCESS) // Check for read or write access.
   {
     szName = szReadAccess;

@@ -55,6 +55,10 @@
   <input type="reset" value="reset2">
   </p>
 </form>
+<form method="POST" action="/cgi-bin/upload.cgi" enctype="multipart/form-data">
+  <input type="file" name="filename">
+  <input type="submit" value="submit">
+</form>
 <li>[505 ERROR] curl --http1.0 localhost:8000 </li>
 <li>[POST CGI] curl -H "Content-Type: plain/text" --data "key=val&key2=val2" localhost:8000/cgi-bin/hello.cgi --verbose</li>
 <li>[GET CGI] curl localhost:8000/cgi-bin/hello.cgi?key=val --verbose</li>

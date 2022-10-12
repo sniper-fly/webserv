@@ -111,8 +111,7 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   // Now key on the request method and URI given.
   // Any POST request.
   if (iMethod == POST && szCgi) {
-    // szCgi == NULLのとき落ちる
-    // どうあるべき？
+    // POSTは必ずszCgiをもつ。ない場合は404エラー
     iRsp = DoExec11(sClient, iMethod, szCgi, szSearch, hInfo);
   }
   // A GET or HEAD to process as a CGI request.
@@ -141,6 +140,11 @@ int DoHttp11(Socket* sClient, char* szMethod, char* szUri) {
   {
     iRsp = SendError(
         sClient, (char*)"Resource not found.", 404, (char*)HTTP_1_1, hInfo);
+    // boundaryがある場合、ファイルを仮取得しないと詰まる。
+    if (strstr(hInfo->szContentType, "boundary")){
+      sClient->RecvTeol();
+      sClient->iErr = 0;
+    }
   }
 
   // This request now finished. Log the results.
@@ -462,21 +466,25 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     // Grab the posted data.
     cParms->szOutput = NULL;
     szFile = MakeUnique((char *)"tmp/tmpExec/", (char *)"txt");
-    ft::strlwr(hInfo->szContentType);
+    // ft::strlwr(hInfo->szContentType); // boundaryを小文字にしてしまう
     // hInfo->szContentType == NULLのとき
     // (クライアントからContent-Typeの指定がない場合、strstr()で落ちる)
     if (hInfo->szContentType){
       szPtr = strstr(hInfo->szContentType, "text/");
     }
-    if (szPtr != NULL) // Receiving text data.
+//    if (szPtr != NULL) // Receiving text data.
+    if (true)
     {
       ofOut.open(szFile);
       // Get the specified number of bytes.
       while ((unsigned long)iCount < hInfo->ulContentLength) {
         i = sClient->RecvTeol(); // Keep eol for proper byte count.
         iCount += i;
+        if (i > 0){
+          --i;
+        }
         // Remove the end of line.
-        while ((sClient->szOutBuf[i] == '\r') || (sClient->szOutBuf[i] == '\n'))
+        while (i >= 0 && (sClient->szOutBuf[i] == '\r' || sClient->szOutBuf[i] == '\n'))
         {
           sClient->szOutBuf[i] = '\0';
           i--;
@@ -566,14 +574,13 @@ int DoExec11(Socket* sClient, int iMethod, char* szPath, char* szSearch,
     hInfo->ulContentLength = 0;
   }
   // Remove the temporary files and memory.
-  unlink(cParms->szOutput);
+  // unlink(cParms->szOutput);
   delete[](cParms->szOutput);
   if (cParms->szPost != NULL){
-    unlink(cParms->szPost);
+    // unlink(cParms->szPost);
     delete[](cParms->szPost);
   }
   delete cParms;
-
   return iRsp;
 }
 
@@ -612,7 +619,7 @@ int CheckMethod(char* szMethod) {
 // specified extension.
 //
 
-char* MakeUnique(char* szDir, char* szExt) {
+char* MakeUnique(const char* szDir, const char* szExt) {
   unsigned long ulNum      = 0;
   bool          bNotUnique = true;
   int           iRc;

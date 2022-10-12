@@ -34,6 +34,7 @@
 
 
 #define SMALLBUF 4196
+#define ENVBUF 1024
 #define STDIN    0x00000000
 #define STDOUT   0x00000001
 
@@ -42,12 +43,20 @@
 volatile int iCgiLock = 0; // Ram semaphore for CGI access.
 
 // The environment variables passed to the cgi process.
-char szServerSoftware[64], szServerName[64], szGatewayInterface[64],
-    szServerProtocol[64], szServerPort[64], szRequestMethod[64],
-    szScriptName[64], *szQueryString, szRemoteHost[64], szRemoteAddr[64],
-    szAuthType[64], szRemoteUser[64], szContentType[64], szContentLength[64],
-    *szEnvs[15];
+char szServerSoftware[ENVBUF], szServerName[ENVBUF], szGatewayInterface[ENVBUF],
+    szServerProtocol[ENVBUF], szServerPort[ENVBUF], szRequestMethod[ENVBUF],
+    szScriptName[ENVBUF], *szQueryString, szRemoteHost[ENVBUF], szRemoteAddr[ENVBUF],
+    szAuthType[ENVBUF], szRemoteUser[ENVBUF], szContentType[ENVBUF], szContentLength[ENVBUF],
+    szFilePath[ENVBUF],
+    *szEnvs[16];
 
+void envdebug(){
+  for(int i=0; i<16; ++i){
+    if (szEnvs[i]){
+      std::cerr << "szEnvs[" << i << "]=" << szEnvs[i] << std::endl;
+    }
+  }
+}
 // ------------------------------------------------------------------
 //
 // ExecCgi
@@ -67,6 +76,7 @@ int ExecCgi(Cgi* cParms) {
 
   // Lock all the other threads out.
   sem_wait(g_cgiSem);
+  memset(szBuf, '\0', SMALLBUF);
 
   // Setting the environment variables.
   sprintf(szServerProtocol, "SERVER_PROTOCOL=%s", cParms->hInfo->szVer);
@@ -105,6 +115,9 @@ int ExecCgi(Cgi* cParms) {
   } else {
     strcpy(szContentLength, "CONTENT_LENGTH=0");
   }
+
+  sprintf(szFilePath, "FILEPATH=%s", cParms->szPost);
+  szEnvs[14] = szFilePath;
   szArgs[0] = cParms->szProg; // The program to run.
   szArgs[1] = NULL;
 
@@ -136,8 +149,6 @@ int ExecCgi(Cgi* cParms) {
   waitpid(-1, &status, 0);
   // 子プロセスが書き出した結果を読み込む
   read(fds[0], szBuf, SMALLBUF);
-
-  std::cerr << "[ExecCGI] szBuf=" << szBuf << std::endl;
 
   // POSTのBodyはどうせ読まない
 /*
@@ -195,6 +206,7 @@ void InitCgi() {
   szEnvs[12] = szContentType;
   szEnvs[13] = szContentLength;
   szEnvs[14] = NULL;
+  szEnvs[15] = NULL;
 
   // These are the same for all requests, so only set once.
   sprintf(szServerSoftware, "SERVER_SOFTWARE=%s", szServerVer);
