@@ -73,13 +73,15 @@ int main(int argc, char* argv[]) {
   g_logSem = sem_open("/webserv_log", O_CREAT, 0600, 1);
   g_cgiSem = sem_open("/webserv_cgi", O_CREAT, 0600, 1);
 
-  iRc = ReadConfig((char*)"3wd.cf");
+  iRc = ReadConfig((char*)"3wd.cf"); // ToDo:引数でconfigファイルのパスを受け取れるようにする必要あり
+  // Q: 読んだconfigはどこに保存されている…？-> config.hppにグローバル変数？がありそう
   if (iRc) {
     std::cerr << "Error!" << std::endl;
     std::cerr << "Error reading configuration file. Exiting." << std::endl;
     return 1; // Exit on error.
   }
   InitCgi();
+  // cgios2.cppでグローバル変数が設定されているっぽい。その中のszEnv[16]に初期値を入れている。
 
   if (argc > 2 && strcmp(argv[1], "-p") == 0) {
     // Set the port to user requested
@@ -143,6 +145,7 @@ void Server() {
       sClient->Close();
       delete sClient;
     }
+    // thread create したやつ回収してなさそう？
   }
 }
 
@@ -169,7 +172,7 @@ void W3Conn(void* arg) {
   szUri     = new char[SMALLBUF];
   szVer     = new char[SMALLBUF];
 
-  iRc = sClient->RecvTeol(NO_EOL); // Get the message
+  iRc = sClient->RecvTeol(NO_EOL); // Get the message // select()この中
 
   // Parse the components of the request
   sscanf(sClient->szOutBuf, "%s %s %s", szRequest, szUri, szVer);

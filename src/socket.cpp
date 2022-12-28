@@ -253,21 +253,23 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
         }
       case 2: // Fill the buffers with data.
         {
-          FD_ZERO(&fdsSocks); // 集合の消去
+          FD_ZERO(&fdsSocks); // 集合の消去(リセット)
           nfds = 0;
 //          std::cerr << "[RecvTeol] iSock:" << iSock << std::endl;
           FD_SET(iSock, &fdsSocks); // fdsSocksにiSockを追加する
-          nfds             = std::max(nfds, iSock);
-          stTimeout.tv_sec = ulTimeout;
+          nfds              = std::max(nfds, iSock);
+          stTimeout.tv_sec  = ulTimeout;
           stTimeout.tv_usec = 0;
-          iErr             = select(nfds + 1, &fdsSocks, NULL, NULL,
-              &stTimeout); // max{r,w,e}+1, read, write, ex, time
-          if (iErr < 1) {              // Error occured.
+          iErr              = select(nfds + 1, &fdsSocks, &fdsSocks, NULL, &stTimeout);
+                                    // max{r,w,e}+1, read, write, ex, time
+          // The select() should check file descriptors for read and write AT THE SAME TIME.
+          // に反していそう？
+          if (iErr < 1) { // Error occured.
             return -1;
           }
           // iErr: recv length
-          iErr = recv(iSock, szBuf1, (MAX_SOCK_BUFFER) / 2,
-              0); // sockfd, buf, len, flags
+          iErr = recv(iSock, szBuf1, (MAX_SOCK_BUFFER) / 2, 0);
+                    // sockfd, buf, len, flags
           if (iErr < 1) {
             iState = 0;
             break;
@@ -283,7 +285,8 @@ int Socket::RecvTeol(int iToast) { // Receive up to the telnet eol and
             nfds             = std::max(nfds, iSock);
             stTimeout.tv_sec = ulTimeout;
             stTimeout.tv_usec = 0;
-            iErr             = select(nfds + 1, &fdsSocks, 0, 0, &stTimeout);
+            iErr             = select(nfds + 1, &fdsSocks, &fdsSocks, 0, &stTimeout);
+            // こっちのselect()はread/write両方見れているっぽい？ 0だからNULLと同じ？だとしたらNG
             if (iErr < 1) { // Error occured.
               return -1;
             }
